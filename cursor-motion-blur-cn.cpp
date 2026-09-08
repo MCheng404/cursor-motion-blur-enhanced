@@ -2,7 +2,7 @@
 // @id              cursor-motion-blur-cn
 // @name            光标运动模糊 - 增强版
 // @description     为鼠标指针添加高速运动模糊拖尾，支持延迟渲染、粒子消散、光标取色、自定义函数轨迹、发光、13种颜色模式和点击特效，Direct2D 硬件加速。
-// @version         8.2
+// @version         8.8
 // @author          TheatriChris (二改汉化 + 功能增强)
 // @github          https://github.com/chrisc44890
 // @license         MIT
@@ -16,9 +16,16 @@
 
 ### 功能特性
 * **延迟渲染：** 拖尾头部缓动跟随光标，滞后平滑（0-10 可调）。
-* **粒子消散：** 拖尾释放迷你小球模拟消散，支持关闭/淡出时/始终三档模式，释放间隔和加速度影响可调。
+* **淡出模式：** 鼠标停止后拖尾消失方式可选——硬截断（立即消失）、加速收缩（越缩越快）、软截断（透明度渐变+拖尾收缩同步，末端加速淡出杜绝硬切）。
+* **动态宽度：** 移动越快、急转时拖尾越宽，增强运动感。
+* **增强发光：** 双层光晕（外晕+内辉），更柔和自然。
+* **头部高光：** 拖尾头部明亮中心点，提升质感。
+* **拖尾阴影：** 底层暗色阴影层，增加立体感。
+* **圆链连接线：** 圆点之间自动连接，拖尾更连续。
+* **指数收尖：** 头部饱满尾部尖细，比线性收尖更自然。
+* **粒子消散：** 拖尾释放迷你小球，全程缓慢吸附回光标位置。释放位置可选（开头/中间/结尾/自定义），吸附强度可调。光标周围有排斥力，粒子飞到附近被弹开并随机扰乱轨迹，形成振荡绕飞效果。
 * **点击星爆：** 点击时从光标位置迸发粒子（可开关、数量可调）。
-* **光标取色：** 实时提取光标下方像素颜色，拖尾自动融入背景（2 种模式）。
+* **光标取色：** 实时提取光标下方像素颜色，拖尾自动融入背景（2 种模式）。支持自动互补色偏移，确保拖尾在任何背景上都醒目可见。
 * **函数轨迹：** 支持自定义数学公式生成轨迹曲线，内置 4 组预设函数。
 * **波浪轨迹：** 拖尾形状增加正弦波浪曲线，轨迹呈流动波浪状。
 * **类锥形圆链：** 由密集圆点组成的锥形拖尾，头部大尾部小。
@@ -61,6 +68,25 @@
 - enable_smooth_gradient: 1
   $name: 平滑渐变
   $description: 拖尾透明度渐变淡出。1=开，0=关。
+- fadeout_mode: soft
+  $name: 淡出模式
+  $description: 鼠标停止后拖尾的消失方式。
+  $options:
+  - hard: 硬截断（立即消失）
+  - accelerate: 加速收缩（越缩越快）
+  - soft: 软截断（渐变+收缩同步）
+- enable_speed_response: 1
+  $name: 动态宽度
+  $description: 移动速度和加速度影响拖尾宽度，急转时更宽。1=开，0=关。
+- enhanced_glow: 1
+  $name: 增强发光
+  $description: 双层光晕（外晕+内辉），发光更柔和自然。需先开启微发光效果。1=开，0=关。
+- enable_head_highlight: 1
+  $name: 头部高光
+  $description: 拖尾头部添加明亮中心点，提升质感。仅锥形/函数/波浪形状生效。1=开，0=关。
+- enable_trail_shadow: 1
+  $name: 拖尾阴影
+  $description: 拖尾底层绘制暗色阴影，增加立体感。1=开，0=关。
 - trail_shape: tapered
   $name: 拖尾形状
   $options:
@@ -111,6 +137,9 @@
   - aurora: 极光
   - cursor_extract: 光标取色
   - cursor_mix: 光标混色
+- enable_cursor_color_shift: 1
+  $name: 取色自动偏移
+  $description: 光标取色模式下自动将提取的颜色转为互补色（色相+180°）并增强饱和度和亮度，确保拖尾在任何背景上都醒目可见。1=开，0=关（使用原始取色）。
 - custom_color: "00BFFF"
   $name: 自定义颜色
   $description: 单色/霓虹/条纹/光标混色模式的主色，十六进制 RGB。
@@ -126,6 +155,29 @@
   - off: 关闭
   - fadeout: 淡出时
   - always: 始终（静止除外）
+- particle_origin: tail
+  $name: 粒子释放位置
+  $description: 粒子从拖尾的哪个位置释放。
+  $options:
+  - head: 开头（光标处）
+  - middle: 中间
+  - tail: 结尾
+  - custom: 自定义比例
+- particle_origin_ratio: 80
+  $name: 自定义释放比例
+  $description: 沿拖尾的位置比例（0=开头光标，100=结尾）。仅释放位置为自定义时生效。
+- particle_attraction: 40
+  $name: 粒子吸附强度
+  $description: 粒子被吸向光标的强度（0=关闭吸附，0-100）。开启后粒子会缓慢飞回光标位置。
+- enable_particle_repel: 1
+  $name: 光标排斥力
+  $description: 粒子飞到光标附近时被排斥力弹开，并随机扰乱轨迹，形成振荡绕飞效果。1=开，0=关。
+- particle_repel_radius: 25
+  $name: 排斥范围
+  $description: 光标周围的排斥半径（像素，5-100）。粒子进入此范围会受到排斥力。
+- particle_repel_force: 30
+  $name: 排斥强度
+  $description: 排斥力和随机扰动的强度（0-100）。数值越大粒子被弹开越远、扰乱越剧烈。
 - particle_density: 3
   $name: 粒子密度
   $description: 每次释放的粒子数量（1-10）。数值越大消散越明显。
@@ -134,7 +186,7 @@
   $description: 粒子释放的最小时间间隔（毫秒，10-2000），越小越密集。
 - particle_acceleration: 1
   $name: 加速度影响
-  $description: 粒子速度受鼠标相对加速度影响（速度变化越大粒子飞散越快）。1=开，0=关。
+  $description: 粒子初速度受鼠标相对加速度影响（速度变化越大粒子飞散越快）。1=开，0=关。
 - enable_click_starburst: 1
   $name: 点击星爆
   $description: 点击时从光标位置迸发粒子。1=开，0=关。
@@ -163,7 +215,7 @@
 #include <vector>
 #include <algorithm>
 
-#define GRAD_STOPS 8
+#define GRAD_STOPS 12
 
 // ===================== 颜色工具 =====================
 static D2D1_COLOR_F HSVtoRGB(float h, float s, float v) {
@@ -313,13 +365,17 @@ int g_trailDelay = 0;
 POINT g_lagPos = { 0, 0 };
 bool g_lagInited = false;
 
+float g_fadeAlpha = 1.0f;
+
 D2D1_COLOR_F g_cursorExtractedColor = { 0.5f, 0.5f, 0.5f, 1.0f };
+bool g_cursorColorShift = true;
 static DWORD s_lastColorExtract = 0;
 
 ID2D1Factory* g_pD2DFactory = nullptr;
 ID2D1DCRenderTarget* g_pDCRenderTarget = nullptr;
 ID2D1SolidColorBrush* g_pSolidOuterBrush = nullptr;
 ID2D1SolidColorBrush* g_pSolidInnerBrush = nullptr;
+ID2D1SolidColorBrush* g_pShadowBrush = nullptr;
 ID2D1LinearGradientBrush* g_pGradOuterBrush = nullptr;
 ID2D1LinearGradientBrush* g_pGradInnerBrush = nullptr;
 ID2D1GradientStopCollection* g_pGradOuterStops = nullptr;
@@ -333,6 +389,11 @@ int g_cachedVW = 0, g_cachedVH = 0;
 float g_triggerVelocity = 25.0f, g_stopVelocity = 10.0f;
 int g_tailOffsetX = 6, g_tailOffsetY = 10, g_tailLength = 10;
 bool g_enableSmoothGradient = true;
+int g_fadeoutMode = 2; // 0=hard 1=accelerate 2=soft
+bool g_enableSpeedResponse = true;
+bool g_enhancedGlow = true;
+bool g_enableHeadHighlight = true;
+bool g_enableTrailShadow = true;
 int g_trailShape = 0;
 int g_dotsMultiplier = 2;
 int g_functionPreset = 0;
@@ -345,6 +406,12 @@ D2D1_COLOR_F g_customColor = { 0.0f, 0.75f, 1.0f, 1.0f };
 D2D1_COLOR_F g_gradHeadColor = { 1.0f, 0.42f, 0.21f, 1.0f };
 D2D1_COLOR_F g_gradTailColor = { 0.0f, 0.75f, 1.0f, 1.0f };
 int g_particleMode = 1;
+int g_particleOrigin = 2; // 0=head 1=middle 2=tail 3=custom
+int g_particleOriginRatio = 80;
+float g_particleAttraction = 0.032f;
+bool g_enableParticleRepel = true;
+int g_particleRepelRadius = 25;
+float g_particleRepelForce = 0.9f;
 int g_particleDensity = 3;
 int g_particleInterval = 50;
 bool g_particleAccel = true;
@@ -403,7 +470,8 @@ static void ComputeColors(int mode, DWORD time, float velocity, GradData& out) {
     }
     out.solidOuter = headOuter; out.solidInner = headInner;
     for (int i = 0; i < GRAD_STOPS; i++) {
-        float ratio = (float)i / (GRAD_STOPS - 1), alpha = 0.86f * (1.0f - ratio);
+        float ratio = (float)i / (GRAD_STOPS - 1);
+        float alpha = 0.86f * powf(1.0f - ratio, 1.4f);
         if (mode == 8) {
             float phase = fmodf(ratio * 4.0f + t * 2.0f, 1.0f);
             bool stripe = phase < 0.5f;
@@ -464,11 +532,36 @@ static void SpawnParticles(float x, float y, int count, float speedMin, float sp
     }
 }
 
+// 沿路径获取指定比例（0=头，1=尾）的坐标
+static D2D1_POINT_2F GetPointOnPath(const std::vector<D2D1_POINT_2F>& path, float ratio) {
+    if (path.empty()) return D2D1::Point2F(0, 0);
+    if (path.size() == 1) return path[0];
+    if (ratio <= 0) return path[0];
+    if (ratio >= 1) return path.back();
+    float totalLen = 0;
+    for (size_t i = 1; i < path.size(); i++) {
+        float dx = path[i].x - path[i-1].x, dy = path[i].y - path[i-1].y;
+        totalLen += sqrtf(dx*dx + dy*dy);
+    }
+    float targetDist = ratio * totalLen, acc = 0;
+    for (size_t i = 1; i < path.size(); i++) {
+        float dx = path[i].x - path[i-1].x, dy = path[i].y - path[i-1].y;
+        float segLen = sqrtf(dx*dx + dy*dy);
+        if (acc + segLen >= targetDist) {
+            float t = segLen > 0 ? (targetDist - acc) / segLen : 0;
+            return D2D1::Point2F(path[i-1].x + dx*t, path[i-1].y + dy*t);
+        }
+        acc += segLen;
+    }
+    return path.back();
+}
+
 static void WStrToUTF8(PCWSTR wstr, char* out, int outSize) {
     if (!wstr) { out[0] = 0; return; }
     WideCharToMultiByte(CP_UTF8, 0, wstr, -1, out, outSize, NULL, NULL);
 }
 
+// ===================== 设置加载 =====================
 void LoadSettings() {
     g_triggerVelocity = (float)Wh_GetIntSetting(L"trigger_velocity");
     g_stopVelocity = (float)Wh_GetIntSetting(L"stop_velocity");
@@ -477,6 +570,19 @@ void LoadSettings() {
     g_tailLength = Wh_GetIntSetting(L"tail_length");
     g_trailDelay = Wh_GetIntSetting(L"trail_delay");
     g_enableSmoothGradient = Wh_GetIntSetting(L"enable_smooth_gradient") != 0;
+    {
+        PCWSTR fstr = Wh_GetStringSetting(L"fadeout_mode");
+        if (fstr) {
+            if (wcscmp(fstr, L"hard") == 0) g_fadeoutMode = 0;
+            else if (wcscmp(fstr, L"accelerate") == 0) g_fadeoutMode = 1;
+            else g_fadeoutMode = 2;
+            Wh_FreeStringSetting(fstr);
+        }
+    }
+    g_enableSpeedResponse = Wh_GetIntSetting(L"enable_speed_response") != 0;
+    g_enhancedGlow = Wh_GetIntSetting(L"enhanced_glow") != 0;
+    g_enableHeadHighlight = Wh_GetIntSetting(L"enable_head_highlight") != 0;
+    g_enableTrailShadow = Wh_GetIntSetting(L"enable_trail_shadow") != 0;
     g_dotsMultiplier = Wh_GetIntSetting(L"dots_multiplier");
     g_waveAmplitude = Wh_GetIntSetting(L"wave_amplitude");
     g_waveFrequency = Wh_GetIntSetting(L"wave_frequency");
@@ -485,6 +591,13 @@ void LoadSettings() {
     g_particleDensity = Wh_GetIntSetting(L"particle_density");
     g_particleInterval = Wh_GetIntSetting(L"particle_interval");
     g_particleAccel = Wh_GetIntSetting(L"particle_acceleration") != 0;
+    g_particleOriginRatio = Wh_GetIntSetting(L"particle_origin_ratio");
+    int attrVal = Wh_GetIntSetting(L"particle_attraction");
+    g_particleAttraction = (attrVal / 100.0f) * 0.08f;
+    g_enableParticleRepel = Wh_GetIntSetting(L"enable_particle_repel") != 0;
+    g_particleRepelRadius = Wh_GetIntSetting(L"particle_repel_radius");
+    int repelVal = Wh_GetIntSetting(L"particle_repel_force");
+    g_particleRepelForce = (repelVal / 100.0f) * 3.0f; // 0-100 → 0-3.0 像素/帧
     PCWSTR pstr = Wh_GetStringSetting(L"particle_mode");
     if (pstr) {
         if (wcscmp(pstr, L"off") == 0) g_particleMode = 0;
@@ -534,6 +647,15 @@ void LoadSettings() {
         else g_colorMode = 0;
         Wh_FreeStringSetting(str);
     }
+    str = Wh_GetStringSetting(L"particle_origin");
+    if (str) {
+        if (wcscmp(str, L"head") == 0) g_particleOrigin = 0;
+        else if (wcscmp(str, L"middle") == 0) g_particleOrigin = 1;
+        else if (wcscmp(str, L"custom") == 0) g_particleOrigin = 3;
+        else g_particleOrigin = 2; // tail
+        Wh_FreeStringSetting(str);
+    }
+    g_cursorColorShift = Wh_GetIntSetting(L"enable_cursor_color_shift") != 0;
     str = Wh_GetStringSetting(L"custom_color");
     if (str) { g_customColor = ParseHexColor(str, D2D1::ColorF(0, .75f, 1)); Wh_FreeStringSetting(str); }
     str = Wh_GetStringSetting(L"gradient_head_color");
@@ -551,6 +673,7 @@ void LoadSettings() {
     if (g_glowIntensity < 0) g_glowIntensity = 0; if (g_glowIntensity > 100) g_glowIntensity = 10;
     if (g_particleDensity < 1) g_particleDensity = 1; if (g_particleDensity > 10) g_particleDensity = 10;
     if (g_particleInterval < 10) g_particleInterval = 10; if (g_particleInterval > 2000) g_particleInterval = 2000;
+    if (g_particleOriginRatio < 0) g_particleOriginRatio = 0; if (g_particleOriginRatio > 100) g_particleOriginRatio = 100;
     if (g_starburstCount < 4) g_starburstCount = 4; if (g_starburstCount > 20) g_starburstCount = 20;
     if (g_clickMaxRadius <= 0) g_clickMaxRadius = 40;
     if (g_clickDuration <= 0) g_clickDuration = 300;
@@ -566,8 +689,10 @@ void LoadSettings() {
 
     s_gradValid = false;
     g_lagInited = false;
+    g_fadeAlpha = 1.0f;
 }
 
+// ===================== 游戏检测 =====================
 bool IsGameRunning() {
     HWND hwnd = GetForegroundWindow();
     if (!hwnd || hwnd == GetDesktopWindow()) return false;
@@ -593,6 +718,24 @@ bool IsGameRunning() {
     return false;
 }
 
+// 取色互补色偏移：色相+180°，增强饱和度和亮度，确保拖尾在任何背景上醒目
+static D2D1_COLOR_F ShiftToComplementary(D2D1_COLOR_F c) {
+    float mx = fmaxf(fmaxf(c.r, c.g), c.b);
+    float mn = fminf(fminf(c.r, c.g), c.b);
+    float h, s, v = mx;
+    float d = mx - mn;
+    s = (mx == 0.0f) ? 0.0f : d / mx;
+    if (d == 0.0f) h = 0.0f;
+    else if (mx == c.r) h = fmodf((c.g - c.b) / d, 6.0f);
+    else if (mx == c.g) h = (c.b - c.r) / d + 2.0f;
+    else h = (c.r - c.g) / d + 4.0f;
+    h *= 60.0f; if (h < 0.0f) h += 360.0f;
+    h = fmodf(h + 180.0f, 360.0f);  // 互补色
+    s = fmaxf(s, 0.55f);             // 饱和度保底
+    v = fmaxf(v, 0.72f);             // 亮度保底
+    return HSVtoRGB(h, s, v);
+}
+
 static void ExtractCursorColor(POINT pt, DWORD dwTime) {
     if (dwTime - s_lastColorExtract < 40) return;
     s_lastColorExtract = dwTime;
@@ -602,11 +745,13 @@ static void ExtractCursorColor(POINT pt, DWORD dwTime) {
         ReleaseDC(NULL, hdcScreen);
         if (col != CLR_INVALID) {
             D2D1_COLOR_F newColor = D2D1::ColorF(GetRValue(col) / 255.0f, GetGValue(col) / 255.0f, GetBValue(col) / 255.0f, 1.0f);
+            if (g_cursorColorShift) newColor = ShiftToComplementary(newColor);
             g_cursorExtractedColor = LerpColor(g_cursorExtractedColor, newColor, 0.22f);
         }
     }
 }
 
+// ===================== 轨迹变形 =====================
 static void ApplyWaveDeformation(std::vector<D2D1_POINT_2F>& pts, DWORD dwTime) {
     if (pts.size() < 3) return;
     float freq = g_waveFrequency / 100.0f, amp = (float)g_waveAmplitude;
@@ -654,6 +799,9 @@ static void ApplyFunctionDeformation(std::vector<D2D1_POINT_2F>& pts, DWORD dwTi
     pts = result;
 }
 
+struct DotInfo { D2D1_POINT_2F pos; float radius; D2D1_COLOR_F outer; D2D1_COLOR_F inner; float alpha; };
+
+// ===================== 主绘制循环 =====================
 VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
     POINT pt; GetCursorPos(&pt);
     int dx = pt.x - g_lastPos.x, dy = pt.y - g_lastPos.y;
@@ -674,6 +822,14 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
 
     GradData cols;
     ComputeColors(g_colorMode, dwTime, velocity, cols);
+
+    float widthMul = 1.0f;
+    if (g_enableSpeedResponse) {
+        float sf = fminf(velocity / 80.0f, 1.0f);
+        float accel = fabsf(velocity - g_prevVelocity);
+        float af = fminf(accel / 30.0f, 1.0f);
+        widthMul = 1.0f + sf * 0.3f + af * 0.15f;
+    }
 
     int vX = GetSystemMetrics(SM_XVIRTUALSCREEN), vY = GetSystemMetrics(SM_YVIRTUALSCREEN);
 
@@ -696,7 +852,7 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
 
     static DWORD lastFsCheck = 0;
     static bool isGameCached = false, isSmearing = false;
-    static int lowVelFrames = 0, needsClear = false;
+    static int lowVelFrames = 0, needsClear = false, fadeoutFrame = 0;
     if (dwTime - lastFsCheck > 500) { isGameCached = IsGameRunning(); lastFsCheck = dwTime; }
 
     int vW = GetSystemMetrics(SM_CXVIRTUALSCREEN), vH = GetSystemMetrics(SM_CYVIRTUALSCREEN) - 1;
@@ -704,6 +860,7 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
     if (isGameCached) {
         if (isSmearing || !g_history.empty() || !g_ripples.empty() || !g_particles.empty() || needsClear) {
             isSmearing = false; g_history.clear(); g_ripples.clear(); g_particles.clear();
+            g_fadeAlpha = 1.0f; fadeoutFrame = 0;
         } else return;
     } else {
         if (velocity > g_triggerVelocity && !isSmearing) { isSmearing = true; lowVelFrames = 0; }
@@ -713,36 +870,125 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
             POINT np = { renderPos.x - vX, renderPos.y - vY };
             g_history.push_front(np);
             while (g_history.size() > (size_t)g_tailLength) g_history.pop_back();
+            fadeoutFrame = 0;
+            // 移动时 alpha 快速恢复到 1.0
+            g_fadeAlpha += (1.0f - g_fadeAlpha) * 0.4f;
+            if (g_fadeAlpha > 1.0f) g_fadeAlpha = 1.0f;
         } else {
-            if (!g_history.empty()) { g_history.pop_back(); if (!g_history.empty()) g_history.pop_back(); }
-            if (g_history.size() == 1) g_history.clear();
+            // ===== 淡出模式：硬截断 / 加速收缩 / 软截断 =====
+            switch (g_fadeoutMode) {
+                case 0: // 硬截断：立即清除
+                    g_history.clear();
+                    g_fadeAlpha = 1.0f;
+                    fadeoutFrame = 0;
+                    break;
+                case 1: { // 加速收缩：前慢后快，每帧 pop 数量平缓递增
+                    fadeoutFrame++;
+                    int popCount = 1 + fadeoutFrame / 5; // 帧1-5:1, 6-10:2, 11-15:3...
+                    if (popCount > 4) popCount = 4; // 上限 4，避免后期飞太快
+                    for (int i = 0; i < popCount && !g_history.empty(); i++)
+                        g_history.pop_back();
+                    if (g_history.size() <= 1) g_history.clear();
+                    g_fadeAlpha = 1.0f;
+                    break;
+                }
+                case 2: // 软截断：基于剩余长度的淡出曲线 + 拖尾收缩同步，杜绝末端硬切
+                    fadeoutFrame++;
+                    if (!g_history.empty()) g_history.pop_back();
+                    // alpha 由剩余点数比例决定：点数越少越透明，pow 曲线让头部保持饱满、尾部加速消失
+                    if (g_history.size() >= 2) {
+                        float lenRatio = (float)g_history.size() / (float)g_tailLength;
+                        g_fadeAlpha = powf(lenRatio, 1.4f);
+                    } else {
+                        g_fadeAlpha = 0; g_history.clear();
+                    }
+                    break;
+            }
         }
     }
 
-    if (g_particleMode > 0 && !g_history.empty() &&
+    // ===== 提前计算 smoothed 路径（粒子释放和渲染共用）=====
+    std::vector<D2D1_POINT_2F> smoothed;
+    bool havePath = (g_history.size() >= 2);
+    if (havePath) {
+        for (auto& p : g_history) smoothed.push_back(D2D1::Point2F((float)p.x + g_tailOffsetX, (float)p.y + g_tailOffsetY));
+        for (int iter = 0; iter < 2; ++iter) {
+            if (smoothed.size() < 3) break;
+            std::vector<D2D1_POINT_2F> ns;
+            ns.push_back(smoothed.front());
+            for (size_t i = 0; i < smoothed.size() - 1; ++i) {
+                D2D1_POINT_2F p0 = smoothed[i], p1 = smoothed[i+1];
+                ns.push_back(D2D1::Point2F(.75f*p0.x+.25f*p1.x, .75f*p0.y+.25f*p1.y));
+                ns.push_back(D2D1::Point2F(.25f*p0.x+.75f*p1.x, .25f*p0.y+.75f*p1.y));
+            }
+            ns.push_back(smoothed.back());
+            smoothed = ns;
+        }
+        if (g_trailShape == 2) ApplyFunctionDeformation(smoothed, dwTime);
+        else if (g_trailShape == 3) ApplyWaveDeformation(smoothed, dwTime);
+    }
+
+    // ===== 粒子释放（基于 smoothed 路径的指定位置）=====
+    if (g_particleMode > 0 && havePath &&
         dwTime - g_lastParticleTime >= (DWORD)g_particleInterval) {
         bool spawnOK = (g_particleMode == 1) ? !isSmearing : true;
         if (spawnOK) {
-            POINT tail = g_history.back();
+            float ratio;
+            switch (g_particleOrigin) {
+                case 0: ratio = 0.0f; break;  // head
+                case 1: ratio = 0.5f; break;  // middle
+                case 3: ratio = g_particleOriginRatio / 100.0f; break; // custom
+                default: ratio = 1.0f; break; // tail
+            }
+            D2D1_POINT_2F origin = GetPointOnPath(smoothed, ratio);
             float speedMul = 1.0f;
             if (g_particleAccel) {
                 float accel = velocity - g_prevVelocity;
                 speedMul = 1.0f + fabsf(accel) * 0.07f;
                 if (speedMul > 3.5f) speedMul = 3.5f;
             }
-            SpawnParticles((float)tail.x + g_tailOffsetX, (float)tail.y + g_tailOffsetY,
+            SpawnParticles(origin.x, origin.y,
                 g_particleDensity, 0.3f * speedMul, 2.0f * speedMul, 0.8f, 2.2f, 300, 700, cols.solidOuter, dwTime);
             g_lastParticleTime = dwTime;
         }
     }
     g_prevVelocity = velocity;
 
-    for (auto& p : g_particles) { p.x += p.vx; p.y += p.vy; p.vx *= 0.95f; p.vy *= 0.95f; }
+    // ===== 粒子物理：摩擦 + 光标排斥力 + 随机扰动 + 全程吸附光标 =====
+    float attractTargetX = (float)(pt.x - vX + g_tailOffsetX);
+    float attractTargetY = (float)(pt.y - vY + g_tailOffsetY);
+    for (auto& p : g_particles) {
+        p.vx *= 0.93f; p.vy *= 0.93f;
+        // 光标周围排斥力：粒子进入范围后被径向弹开 + 随机方向扰乱
+        if (g_enableParticleRepel && g_particleRepelForce > 0) {
+            float rdx = p.x - attractTargetX;
+            float rdy = p.y - attractTargetY;
+            float rdist = sqrtf(rdx * rdx + rdy * rdy);
+            if (rdist < (float)g_particleRepelRadius && rdist > 0.5f) {
+                float nx = rdx / rdist, ny = rdy / rdist;
+                float falloff = 1.0f - rdist / (float)g_particleRepelRadius; // 越靠近光标排斥越强
+                float force = falloff * g_particleRepelForce;
+                // 径向排斥
+                p.vx += nx * force;
+                p.vy += ny * force;
+                // 随机方向扰动（扰乱吸附轨迹，制造绕飞感）
+                float perturb = force * 0.65f;
+                float angle = Rand01() * 6.28318f;
+                p.vx += cosf(angle) * perturb;
+                p.vy += sinf(angle) * perturb;
+            }
+        }
+        p.x += p.vx; p.y += p.vy;
+        if (g_particleAttraction > 0) {
+            p.x += (attractTargetX - p.x) * g_particleAttraction;
+            p.y += (attractTargetY - p.y) * g_particleAttraction;
+        }
+    }
     if (!g_particles.empty())
         g_particles.erase(std::remove_if(g_particles.begin(), g_particles.end(),
             [&](const Particle& p) { return dwTime - p.startTime > (DWORD)p.lifetime; }), g_particles.end());
 
-    bool tailVisible = isSmearing || g_history.size() >= 2;
+    bool tailVisible = (isSmearing || g_history.size() >= 2) && g_fadeAlpha > 0.02f;
     bool isDrawing = tailVisible || !g_ripples.empty() || !g_particles.empty();
 
     static bool isWindowVisible = true;
@@ -763,6 +1009,7 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
     if (!g_pDCRenderTarget && g_pD2DFactory) {
         if (g_pSolidOuterBrush) { g_pSolidOuterBrush->Release(); g_pSolidOuterBrush = nullptr; }
         if (g_pSolidInnerBrush) { g_pSolidInnerBrush->Release(); g_pSolidInnerBrush = nullptr; }
+        if (g_pShadowBrush) { g_pShadowBrush->Release(); g_pShadowBrush = nullptr; }
         ReleaseGradientBrushes();
         D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
             D2D1_RENDER_TARGET_TYPE_DEFAULT,
@@ -770,8 +1017,10 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
             0, 0, D2D1_RENDER_TARGET_USAGE_NONE, D2D1_FEATURE_LEVEL_DEFAULT);
         g_pD2DFactory->CreateDCRenderTarget(&props, &g_pDCRenderTarget);
         if (g_pDCRenderTarget) {
+            g_pDCRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
             g_pDCRenderTarget->CreateSolidColorBrush(D2D1::ColorF(0,0,0,1), &g_pSolidOuterBrush);
             g_pDCRenderTarget->CreateSolidColorBrush(D2D1::ColorF(1,1,1,1), &g_pSolidInnerBrush);
+            g_pDCRenderTarget->CreateSolidColorBrush(D2D1::ColorF(0,0,0,0.18f), &g_pShadowBrush);
         }
     }
     if (!g_pDCRenderTarget) { ReleaseDC(NULL, hdcScreen); return; }
@@ -781,41 +1030,34 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
     g_pDCRenderTarget->BeginDraw();
     g_pDCRenderTarget->Clear(D2D1::ColorF(0, 0, 0, 0));
 
+    // ===== 粒子（带微发光）=====
     if (!g_particles.empty()) {
         for (auto& p : g_particles) {
             float progress = (float)(dwTime - p.startTime) / p.lifetime;
             if (progress < 0 || progress >= 1) continue;
+            float lifeAlpha = (1.0f - progress);
+            D2D1_POINT_2F pp = D2D1::Point2F(p.x, p.y);
             g_pSolidOuterBrush->SetColor(p.color);
-            g_pSolidOuterBrush->SetOpacity((1.0f - progress) * 0.65f);
-            g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(D2D1::Point2F(p.x, p.y), p.size, p.size), g_pSolidOuterBrush);
+            g_pSolidOuterBrush->SetOpacity(lifeAlpha * 0.18f);
+            g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pp, p.size * 2.5f, p.size * 2.5f), g_pSolidOuterBrush);
+            g_pSolidOuterBrush->SetOpacity(lifeAlpha * 0.65f);
+            g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pp, p.size, p.size), g_pSolidOuterBrush);
         }
         g_pSolidOuterBrush->SetOpacity(1.0f);
         needsClear = true;
     }
 
-    if (tailVisible && g_history.size() >= 2) {
-        std::vector<D2D1_POINT_2F> smoothed;
-        for (auto& p : g_history) smoothed.push_back(D2D1::Point2F((float)p.x + g_tailOffsetX, (float)p.y + g_tailOffsetY));
-        for (int iter = 0; iter < 2; ++iter) {
-            if (smoothed.size() < 3) break;
-            std::vector<D2D1_POINT_2F> ns;
-            ns.push_back(smoothed.front());
-            for (size_t i = 0; i < smoothed.size() - 1; ++i) {
-                D2D1_POINT_2F p0 = smoothed[i], p1 = smoothed[i+1];
-                ns.push_back(D2D1::Point2F(.75f*p0.x+.25f*p1.x, .75f*p0.y+.25f*p1.y));
-                ns.push_back(D2D1::Point2F(.25f*p0.x+.75f*p1.x, .25f*p0.y+.75f*p1.y));
-            }
-            ns.push_back(smoothed.back());
-            smoothed = ns;
-        }
-        if (g_trailShape == 2) ApplyFunctionDeformation(smoothed, dwTime);
-        else if (g_trailShape == 3) ApplyWaveDeformation(smoothed, dwTime);
-
+    // ===== 拖尾（复用已计算的 smoothed 路径）=====
+    if (tailVisible && havePath) {
         UpdateColorBrushes(cols, smoothed[0], smoothed.back());
         float glowR = g_enableGlow ? (g_glowIntensity / 100.0f) * 7.0f : 0;
         float glowO = g_enableGlow ? (g_glowIntensity / 100.0f) * 0.28f : 0;
+        bool useEnhancedGlow = g_enhancedGlow && glowR > 0.1f;
+        float fa = g_fadeAlpha;
+        const float SHADOW_DX = 1.5f, SHADOW_DY = 2.0f;
 
         if (g_trailShape == 1) {
+            // ===== 类锥形圆链 =====
             float totalLen = 0;
             for (size_t i = 1; i < smoothed.size(); i++) {
                 float ddx = smoothed[i].x - smoothed[i-1].x, ddy = smoothed[i].y - smoothed[i-1].y;
@@ -823,8 +1065,9 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
             }
             float mult = (float)g_dotsMultiplier;
             float spacing = 2.4f / mult;
-            float maxR = 9.0f / sqrtf(mult);
+            float maxR = 9.0f / sqrtf(mult) * widthMul;
             int dotCount = (int)(totalLen / spacing); if (dotCount < 3) dotCount = 3;
+            std::vector<DotInfo> dots; dots.reserve(dotCount + 1);
             for (int di = 0; di <= dotCount; di++) {
                 float frac = (float)di / dotCount;
                 float targetDist = frac * totalLen, acc = 0;
@@ -845,28 +1088,56 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
                 float sizeJit = 0.78f + Hash01(di * 7 + 1) * 0.44f;
                 float opJit = 0.65f + Hash01(di * 13 + 5) * 0.55f;
                 float posJit = (Hash01(di * 3 + 9) - 0.5f) * 2.5f;
-                float dr = maxR * (1.0f - frac) * sizeJit;
+                float dr = maxR * powf(1.0f - frac, 1.6f) * sizeJit;
                 if (dr < 0.3f) continue;
                 pos.x += nx * posJit; pos.y += ny * posJit;
                 int idx = (int)(frac * (GRAD_STOPS-1) + 0.5f); if (idx >= GRAD_STOPS) idx = GRAD_STOPS-1;
                 D2D1_COLOR_F dco = cols.outer[idx].color, dci = cols.inner[idx].color;
-                float da = 0.86f * (1.0f - frac) * opJit;
+                float da = 0.86f * powf(1.0f - frac, 1.4f) * opJit * fa;
                 if (g_enableSmoothGradient) da *= (1.0f - frac * 0.3f);
-                if (glowR > 0.1f) {
-                    g_pSolidOuterBrush->SetColor(dco);
-                    g_pSolidOuterBrush->SetOpacity(glowO * (1.0f - frac * 0.4f) * opJit);
-                    g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pos, dr + glowR * 0.7f, dr + glowR * 0.7f), g_pSolidOuterBrush);
+                dots.push_back({ pos, dr, dco, dci, da });
+            }
+            if (g_enableTrailShadow && !dots.empty()) {
+                g_pShadowBrush->SetOpacity(0.18f * fa);
+                for (auto& d : dots) {
+                    D2D1_POINT_2F sp = D2D1::Point2F(d.pos.x + SHADOW_DX, d.pos.y + SHADOW_DY);
+                    g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(sp, d.radius * 1.1f, d.radius * 1.1f), g_pShadowBrush);
                 }
-                g_pSolidOuterBrush->SetColor(dco); g_pSolidOuterBrush->SetOpacity(da);
-                g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pos, dr, dr), g_pSolidOuterBrush);
-                g_pSolidInnerBrush->SetColor(dci); g_pSolidInnerBrush->SetOpacity(da * 0.9f);
-                g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pos, dr * 0.58f, dr * 0.58f), g_pSolidInnerBrush);
+            }
+            if (dots.size() >= 2) {
+                for (size_t i = 0; i < dots.size() - 1; i++) {
+                    float lineW = (dots[i].radius + dots[i+1].radius) * 0.65f;
+                    if (lineW < 0.5f) continue;
+                    D2D1_COLOR_F midColor = LerpColor(dots[i].outer, dots[i+1].outer, 0.5f);
+                    g_pSolidOuterBrush->SetColor(midColor);
+                    g_pSolidOuterBrush->SetOpacity((dots[i].alpha + dots[i+1].alpha) * 0.45f);
+                    g_pDCRenderTarget->DrawLine(dots[i].pos, dots[i+1].pos, g_pSolidOuterBrush, lineW);
+                }
+                g_pSolidOuterBrush->SetOpacity(1.0f);
+            }
+            for (auto& d : dots) {
+                if (useEnhancedGlow) {
+                    g_pSolidOuterBrush->SetColor(d.outer);
+                    g_pSolidOuterBrush->SetOpacity(glowO * 0.35f * d.alpha / fa);
+                    g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(d.pos, d.radius + glowR * 1.6f, d.radius + glowR * 1.6f), g_pSolidOuterBrush);
+                    g_pSolidOuterBrush->SetOpacity(glowO * 0.7f * d.alpha / fa);
+                    g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(d.pos, d.radius + glowR * 0.7f, d.radius + glowR * 0.7f), g_pSolidOuterBrush);
+                } else if (glowR > 0.1f) {
+                    g_pSolidOuterBrush->SetColor(d.outer);
+                    g_pSolidOuterBrush->SetOpacity(glowO * d.alpha / fa);
+                    g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(d.pos, d.radius + glowR * 0.7f, d.radius + glowR * 0.7f), g_pSolidOuterBrush);
+                }
+                g_pSolidOuterBrush->SetColor(d.outer); g_pSolidOuterBrush->SetOpacity(d.alpha);
+                g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(d.pos, d.radius, d.radius), g_pSolidOuterBrush);
+                g_pSolidInnerBrush->SetColor(d.inner); g_pSolidInnerBrush->SetOpacity(d.alpha * 0.9f);
+                g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(d.pos, d.radius * 0.58f, d.radius * 0.58f), g_pSolidInnerBrush);
             }
             g_pSolidOuterBrush->SetOpacity(1); g_pSolidInnerBrush->SetOpacity(1);
             needsClear = true;
         } else {
+            // ===== 多边形带状 =====
             size_t sl = smoothed.size();
-            std::vector<D2D1_POINT_2F> lo, ro, lc, rc, gl, gr;
+            std::vector<D2D1_POINT_2F> lo, ro, lc, rc, gl, gr, gl2, gr2;
             for (size_t i = 0; i < sl; ++i) {
                 float ddx, ddy;
                 if (i == 0) { ddx = smoothed[0].x - smoothed[1].x; ddy = smoothed[0].y - smoothed[1].y; }
@@ -875,7 +1146,9 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
                 float ln = sqrtf(ddx*ddx + ddy*ddy);
                 if (ln > 0) { ddx /= ln; ddy /= ln; } else { ddx = 1; ddy = 0; }
                 float nx = -ddy, ny = ddx, ratio = (float)i / (sl-1);
-                float ow = 10.0f - 10.0f * ratio, cw = 6.0f - 6.0f * ratio;
+                float taper = powf(1.0f - ratio, 1.3f);
+                float ow = 10.0f * taper * widthMul;
+                float cw = 6.0f * taper * widthMul;
                 if (i == sl-1) { ow = 0; cw = 0; }
                 lo.push_back(D2D1::Point2F(smoothed[i].x + nx*ow, smoothed[i].y + ny*ow));
                 ro.push_back(D2D1::Point2F(smoothed[i].x - nx*ow, smoothed[i].y - ny*ow));
@@ -885,7 +1158,33 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
                     float gw = ow + glowR * (1.0f - ratio * 0.3f);
                     gl.push_back(D2D1::Point2F(smoothed[i].x + nx*gw, smoothed[i].y + ny*gw));
                     gr.push_back(D2D1::Point2F(smoothed[i].x - nx*gw, smoothed[i].y - ny*gw));
+                    if (useEnhancedGlow) {
+                        float gw2 = ow + glowR * 1.8f * (1.0f - ratio * 0.2f);
+                        gl2.push_back(D2D1::Point2F(smoothed[i].x + nx*gw2, smoothed[i].y + ny*gw2));
+                        gr2.push_back(D2D1::Point2F(smoothed[i].x - nx*gw2, smoothed[i].y - ny*gw2));
+                    }
                 }
+            }
+            if (g_enableTrailShadow && lo.size() >= 2) {
+                ID2D1PathGeometry* pg = nullptr; ID2D1GeometrySink* ps = nullptr;
+                g_pD2DFactory->CreatePathGeometry(&pg); pg->Open(&ps);
+                ps->SetFillMode(D2D1_FILL_MODE_WINDING);
+                ps->BeginFigure(D2D1::Point2F(lo[0].x + SHADOW_DX, lo[0].y + SHADOW_DY), D2D1_FIGURE_BEGIN_FILLED);
+                for (size_t i = 1; i < lo.size(); ++i) ps->AddLine(D2D1::Point2F(lo[i].x + SHADOW_DX, lo[i].y + SHADOW_DY));
+                for (int i = (int)ro.size()-1; i >= 0; --i) ps->AddLine(D2D1::Point2F(ro[i].x + SHADOW_DX, ro[i].y + SHADOW_DY));
+                ps->EndFigure(D2D1_FIGURE_END_CLOSED); ps->Close(); ps->Release();
+                g_pShadowBrush->SetOpacity(0.18f * fa);
+                g_pDCRenderTarget->FillGeometry(pg, g_pShadowBrush); pg->Release();
+            }
+            if (useEnhancedGlow && gl2.size() >= 2) {
+                ID2D1PathGeometry* pg = nullptr; ID2D1GeometrySink* ps = nullptr;
+                g_pD2DFactory->CreatePathGeometry(&pg); pg->Open(&ps);
+                ps->SetFillMode(D2D1_FILL_MODE_WINDING); ps->BeginFigure(gl2[0], D2D1_FIGURE_BEGIN_FILLED);
+                for (size_t i = 1; i < gl2.size(); ++i) ps->AddLine(gl2[i]);
+                for (int i = (int)gr2.size()-1; i >= 0; --i) ps->AddLine(gr2[i]);
+                ps->EndFigure(D2D1_FIGURE_END_CLOSED); ps->Close(); ps->Release();
+                g_pSolidOuterBrush->SetColor(cols.solidOuter); g_pSolidOuterBrush->SetOpacity(glowO * 0.3f * fa);
+                g_pDCRenderTarget->FillGeometry(pg, g_pSolidOuterBrush); pg->Release();
             }
             if (glowR > 0.1f && gl.size() >= 2) {
                 ID2D1PathGeometry* pg = nullptr; ID2D1GeometrySink* ps = nullptr;
@@ -894,7 +1193,8 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
                 for (size_t i = 1; i < gl.size(); ++i) ps->AddLine(gl[i]);
                 for (int i = (int)gr.size()-1; i >= 0; --i) ps->AddLine(gr[i]);
                 ps->EndFigure(D2D1_FIGURE_END_CLOSED); ps->Close(); ps->Release();
-                g_pSolidOuterBrush->SetColor(cols.solidOuter); g_pSolidOuterBrush->SetOpacity(glowO);
+                g_pSolidOuterBrush->SetColor(cols.solidOuter);
+                g_pSolidOuterBrush->SetOpacity(useEnhancedGlow ? glowO * 0.65f * fa : glowO * fa);
                 g_pDCRenderTarget->FillGeometry(pg, g_pSolidOuterBrush); pg->Release();
             }
             ID2D1PathGeometry *pog = nullptr, *pcg = nullptr;
@@ -909,12 +1209,13 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
             for (size_t i = 1; i < lc.size(); ++i) ps->AddLine(lc[i]);
             for (int i = (int)rc.size()-1; i >= 0; --i) ps->AddLine(rc[i]);
             ps->EndFigure(D2D1_FIGURE_END_CLOSED); ps->Close(); ps->Release();
+            float headR = 10.0f * widthMul, innerHeadR = 6.0f * widthMul;
             ID2D1EllipseGeometry *poe = nullptr, *pie = nullptr;
-            g_pD2DFactory->CreateEllipseGeometry(D2D1::Ellipse(smoothed[0], 10, 10), &poe);
-            g_pD2DFactory->CreateEllipseGeometry(D2D1::Ellipse(smoothed[0], 6, 6), &pie);
+            g_pD2DFactory->CreateEllipseGeometry(D2D1::Ellipse(smoothed[0], headR, headR), &poe);
+            g_pD2DFactory->CreateEllipseGeometry(D2D1::Ellipse(smoothed[0], innerHeadR, innerHeadR), &pie);
             ID2D1Brush *ob = g_pSolidOuterBrush, *ib = g_pSolidInnerBrush;
             if (g_enableSmoothGradient && g_pGradOuterBrush && g_pGradInnerBrush) { ob = g_pGradOuterBrush; ib = g_pGradInnerBrush; }
-            else { g_pSolidOuterBrush->SetOpacity(.86f); g_pSolidInnerBrush->SetOpacity(.86f); }
+            else { g_pSolidOuterBrush->SetOpacity(.86f * fa); g_pSolidInnerBrush->SetOpacity(.86f * fa); }
             ID2D1Geometry* og[2] = { pog, poe }, *ig[2] = { pcg, pie };
             ID2D1GeometryGroup *pog_g = nullptr, *pig_g = nullptr;
             g_pD2DFactory->CreateGeometryGroup(D2D1_FILL_MODE_WINDING, og, 2, &pog_g);
@@ -922,18 +1223,28 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
             g_pDCRenderTarget->FillGeometry(pog_g, ob);
             g_pDCRenderTarget->FillGeometry(pig_g, ib);
             g_pSolidOuterBrush->SetOpacity(1); g_pSolidInnerBrush->SetOpacity(1);
+            if (g_enableHeadHighlight) {
+                g_pSolidInnerBrush->SetColor(D2D1::ColorF(1, 1, 1, 1));
+                g_pSolidInnerBrush->SetOpacity(0.85f * fa);
+                g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(smoothed[0], 2.8f, 2.8f), g_pSolidInnerBrush);
+                g_pSolidInnerBrush->SetOpacity(1.0f);
+            }
             pog_g->Release(); pig_g->Release(); poe->Release(); pie->Release(); pog->Release(); pcg->Release();
             needsClear = true;
         }
     }
 
+    // ===== 点击波纹 =====
     if (g_enableClickEffect && !g_ripples.empty()) {
         for (auto& ripple : g_ripples) {
             float elapsed = (float)(dwTime - ripple.startTime), progress = elapsed / g_clickDuration;
             if (progress < 0 || progress >= 1) continue;
             float radius = progress * g_clickMaxRadius, alpha = (1 - progress) * .7f;
             D2D1_POINT_2F c = D2D1::Point2F((float)(ripple.pos.x - vX), (float)(ripple.pos.y - vY));
-            g_pSolidOuterBrush->SetColor(cols.solidOuter); g_pSolidOuterBrush->SetOpacity(alpha);
+            g_pSolidOuterBrush->SetColor(cols.solidOuter);
+            g_pSolidOuterBrush->SetOpacity(alpha * 0.12f);
+            g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(c, radius, radius), g_pSolidOuterBrush);
+            g_pSolidOuterBrush->SetOpacity(alpha);
             g_pDCRenderTarget->DrawEllipse(D2D1::Ellipse(c, radius, radius), g_pSolidOuterBrush, 2.5f);
             if (radius > 4) {
                 g_pSolidInnerBrush->SetColor(cols.solidInner); g_pSolidInnerBrush->SetOpacity(alpha * .8f);
@@ -954,6 +1265,7 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
     if (!isSmearing && g_history.empty() && g_ripples.empty() && g_particles.empty()) needsClear = false;
 }
 
+// ===================== 覆盖层线程 =====================
 DWORD WINAPI OverlayThreadProc(LPVOID) {
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
@@ -974,6 +1286,7 @@ DWORD WINAPI OverlayThreadProc(LPVOID) {
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) { TranslateMessage(&msg); DispatchMessage(&msg); }
     ReleaseGradientBrushes();
+    if (g_pShadowBrush) { g_pShadowBrush->Release(); g_pShadowBrush = nullptr; }
     if (g_pSolidInnerBrush) { g_pSolidInnerBrush->Release(); g_pSolidInnerBrush = nullptr; }
     if (g_pSolidOuterBrush) { g_pSolidOuterBrush->Release(); g_pSolidOuterBrush = nullptr; }
     if (g_pDCRenderTarget) { g_pDCRenderTarget->Release(); g_pDCRenderTarget = nullptr; }
@@ -988,6 +1301,7 @@ BOOL WhTool_ModInit() { LoadSettings(); g_threadHandle = CreateThread(NULL, 0, O
 void WhTool_ModUninit() { if (g_overlayHwnd) PostMessage(g_overlayHwnd, WM_QUIT, 0, 0); if (g_threadHandle) { WaitForSingleObject(g_threadHandle, INFINITE); CloseHandle(g_threadHandle); } }
 void WhTool_ModSettingsChanged() { LoadSettings(); }
 
+////////////////////////////////////////////////////////////////////////////////
 bool g_isToolModProcessLauncher;
 HANDLE g_toolModProcessMutex;
 void WINAPI EntryPoint_Hook() { Wh_Log(L">"); ExitThread(0); }
