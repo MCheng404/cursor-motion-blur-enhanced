@@ -1,207 +1,226 @@
 // ==WindhawkMod==
-// @id              cursor-motion-blur-cn
-// @name            光标运动模糊 - 增强版
-// @description     为鼠标指针添加高速运动模糊拖尾，支持延迟渲染、粒子消散、光标取色、自定义函数轨迹、发光、13种颜色模式和点击特效，Direct2D 硬件加速。
-// @version         8.8
-// @author          TheatriChris (二改汉化 + 功能增强)
-// @github          https://github.com/chrisc44890
+// @id              cursor-motion-blur-pro
+// @name            Cursor Motion Blur Pro / 光标运动模糊
+// @description     EN: High-performance cursor motion blur with particle effects, 13 color modes, custom function trails, cursor color extraction, and click effects. Direct2D hardware accelerated. / 中文：高性能鼠标运动模糊拖尾，支持粒子特效、13种颜色模式、自定义函数轨迹、光标取色和点击特效，Direct2D 硬件加速。
+// @version         9.0
+// @author          TheatriChris (original), MCheng404 (enhanced fork)
+// @github          https://github.com/MCheng404
 // @license         MIT
 // @include         windhawk.exe
 // @compilerOptions -ld2d1 -lole32 -lgdi32 -lshell32
 // ==/WindhawkMod==
 // ==WindhawkModReadme==
 /*
-# 光标运动模糊 - 增强版
-高速移动鼠标时产生平滑的运动模糊拖尾，Direct2D 硬件加速渲染。
+# Cursor Motion Blur Pro / 光标运动模糊
 
-### 功能特性
-* **延迟渲染：** 拖尾头部缓动跟随光标，滞后平滑（0-10 可调）。
-* **淡出模式：** 鼠标停止后拖尾消失方式可选——硬截断（立即消失）、加速收缩（越缩越快）、软截断（透明度渐变+拖尾收缩同步，末端加速淡出杜绝硬切）。
-* **动态宽度：** 移动越快、急转时拖尾越宽，增强运动感。
-* **增强发光：** 双层光晕（外晕+内辉），更柔和自然。
-* **头部高光：** 拖尾头部明亮中心点，提升质感。
-* **拖尾阴影：** 底层暗色阴影层，增加立体感。
-* **圆链连接线：** 圆点之间自动连接，拖尾更连续。
-* **指数收尖：** 头部饱满尾部尖细，比线性收尖更自然。
-* **粒子消散：** 拖尾释放迷你小球，全程缓慢吸附回光标位置。释放位置可选（开头/中间/结尾/自定义），吸附强度可调。光标周围有排斥力，粒子飞到附近被弹开并随机扰乱轨迹，形成振荡绕飞效果。
-* **点击星爆：** 点击时从光标位置迸发粒子（可开关、数量可调）。
-* **光标取色：** 实时提取光标下方像素颜色，拖尾自动融入背景（2 种模式）。支持自动互补色偏移，确保拖尾在任何背景上都醒目可见。
-* **函数轨迹：** 支持自定义数学公式生成轨迹曲线，内置 4 组预设函数。
-* **波浪轨迹：** 拖尾形状增加正弦波浪曲线，轨迹呈流动波浪状。
-* **类锥形圆链：** 由密集圆点组成的锥形拖尾，头部大尾部小。
-* **平滑渐变：** 拖尾从头到尾透明度渐变淡出（可开关）。
-* **微发光效果：** 拖尾外圈柔和发光（可开关、强度可调）。
-* **13 种颜色模式：** 经典黑白 / 单色 / 多色渐变 / 彩虹流动 / 暖色流动 / 冷色流动 / 霓虹脉冲 / 速度变色 / 流动条纹 / 火焰 / 极光 / 光标取色 / 光标混色。
-* **点击波纹：** 按下鼠标左右键时产生扩散波纹（可开关）。
-* **游戏检测：** 全屏 DirectX 游戏时自动禁用。
-* **动态渲染：** 鼠标静止且无特效时 CPU 占用为 0%。
+**EN:** Smooth motion blur trail for your mouse cursor, rendered with Direct2D hardware acceleration. A heavily enhanced fork of TheatriChris's Cursor Motion Blur.
 
-### 函数轨迹变量
-自定义公式中可使用：`t`（归一化位置 0=头 1=尾）、`d`（距头部像素距离）、`time`（秒）。
-支持函数：sin cos tan exp sqrt abs log，运算符：+ - * / ^，常量：pi e。
-示例：`sin(d * 0.15) * 8`、`sin(d * 0.25) * exp(0 - t * 2.5) * 10`。
+**中文：** 高速移动鼠标时产生平滑的运动模糊拖尾，Direct2D 硬件加速渲染。基于 TheatriChris 的 Cursor Motion Blur 深度二改增强。
 
-### 颜色格式
-自定义颜色使用十六进制 RGB，例如：`FF0000`=红，`00FF00`=绿，`0000FF`=蓝，`FFD700`=金。
+---
+
+### Features / 功能特性
+
+* **Delay Rendering / 延迟渲染：** Trail head eases toward the cursor (0-10 adjustable). / 拖尾头部缓动跟随光标，滞后平滑（0-10 可调）。
+* **Fadeout Modes / 淡出模式：** Hard cut / Accelerated shrink / Soft fade (alpha + length synchronized, no hard cutoff). / 硬截断 / 加速收缩 / 软截断（透明度渐变+拖尾收缩同步，末端加速淡出杜绝硬切）。
+* **Dynamic Width / 动态宽度：** Trail widens with speed and acceleration. / 移动越快、急转时拖尾越宽，增强运动感。
+* **Enhanced Glow / 增强发光：** Dual-layer halo (outer glow + inner bloom). / 双层光晕（外晕+内辉），更柔和自然。
+* **Head Highlight / 头部高光：** Bright center dot at the trail head. / 拖尾头部明亮中心点，提升质感。
+* **Trail Shadow / 拖尾阴影：** Dark underlay adds depth. / 底层暗色阴影层，增加立体感。
+* **Dot Chain Links / 圆链连接线：** Auto-connecting dots for continuous trail. / 圆点之间自动连接，拖尾更连续。
+* **Exponential Taper / 指数收尖：** Fuller head, sharper tail than linear taper. / 头部饱满尾部尖细，比线性收尖更自然。
+* **Particle Dissipation / 粒子消散：** Mini particles released from the trail, attracted back to cursor with configurable origin (head/middle/tail/custom), attraction strength, and cursor repulsion force. Shapes: circle / star / hexagram / random mix. Colors fade from bright to dark over lifetime. / 拖尾释放迷你粒子，全程缓慢吸附回光标位置。释放位置可选（开头/中间/结尾/自定义），吸附强度可调。光标周围有排斥力，粒子飞到附近被弹开并随机扰乱轨迹。粒子支持圆形/五角星/六芒星/随机混合形状，颜色随生命周期从亮到暗渐变。
+* **Click Starburst / 点击星爆：** Particle burst on click (toggleable, count adjustable). / 点击时从光标位置迸发粒子（可开关、数量可调）。
+* **Cursor Color Extraction / 光标取色：** Real-time pixel color sampling under the cursor (2 modes), with auto complementary-color shift for visibility. / 实时提取光标下方像素颜色，拖尾自动融入背景（2 种模式）。支持自动互补色偏移，确保拖尾在任何背景上都醒目可见。
+* **Function Trails / 函数轨迹：** Custom math expressions generate trail curves, 4 built-in presets. / 支持自定义数学公式生成轨迹曲线，内置 4 组预设函数。
+* **Wave Trails / 波浪轨迹：** Sine-wave trail shape with flowing animation. / 拖尾形状增加正弦波浪曲线，轨迹呈流动波浪状。
+* **Tapered Dot Chain / 类锥形圆链：** Dense dot-based tapered trail, big head small tail. / 由密集圆点组成的锥形拖尾，头部大尾部小。
+* **Smooth Gradient / 平滑渐变：** Head-to-tail opacity gradient (toggleable). / 拖尾从头到尾透明度渐变淡出（可开关）。
+* **Micro Glow / 微发光效果：** Soft outer glow (toggleable, intensity adjustable). / 拖尾外圈柔和发光（可开关、强度可调）。
+* **13 Color Modes / 13 种颜色模式：** Classic / Single / Gradient / Rainbow / Warm / Cool / Neon / Velocity / Stripes / Fire / Aurora / Cursor Extract / Cursor Mix.
+* **Click Ripple / 点击波纹：** Expanding ripple on left/right click (toggleable). / 按下鼠标左右键时产生扩散波纹（可开关）。
+* **Game Detection / 游戏检测：** Auto-disable in fullscreen DirectX games. / 全屏 DirectX 游戏时自动禁用。
+* **Idle at 0% CPU / 动态渲染：** Zero CPU when cursor is stationary and no effects active. / 鼠标静止且无特效时 CPU 占用为 0%。
+
+### Function Trail Variables / 函数轨迹变量
+**EN:** Available variables: `t` (normalized 0=head 1=tail), `d` (distance from head in px), `time` (seconds). Functions: sin cos tan exp sqrt abs log. Operators: + - * / ^. Constants: pi e.
+**中文：** 自定义公式中可使用：`t`（归一化位置 0=头 1=尾）、`d`（距头部像素距离）、`time`（秒）。支持函数：sin cos tan exp sqrt abs log，运算符：+ - * / ^，常量：pi e。
+Examples / 示例：`sin(d * 0.15) * 8`, `sin(d * 0.25) * exp(0 - t * 2.5) * 10`.
+
+### Color Format / 颜色格式
+**EN:** Hex RGB, e.g. `FF0000`=red, `00FF00`=green, `0000FF`=blue, `FFD700`=gold.
+**中文：** 自定义颜色使用十六进制 RGB，例如：`FF0000`=红，`00FF00`=绿，`0000FF`=蓝，`FFD700`=金。
+
+### Credits / 致谢
+Original mod by [TheatriChris](https://github.com/chrisc44890). Enhanced fork by [MCheng404](https://github.com/MCheng404).
+原版作者 [TheatriChris](https://github.com/chrisc44890)，二改增强 [MCheng404](https://github.com/MCheng404)。
 */
 // ==/WindhawkModReadme==
 // ==WindhawkModSettings==
 /*
 - trigger_velocity: 25
-  $name: 触发速度
-  $description: 鼠标移动多快时触发拖影（像素/帧）。
+  $name: 触发速度 / Trigger Velocity
+  $description: 鼠标移动多快时触发拖影（像素/帧）。How fast the mouse must move to trigger the blur (pixels per frame).
 - stop_velocity: 10
-  $name: 停止速度
-  $description: 停止拖影的速度阈值（像素/帧）。必须低于触发速度。
+  $name: 停止速度 / Stop Velocity
+  $description: 停止拖影的速度阈值（像素/帧）。必须低于触发速度。Velocity threshold to stop the blur. Must be lower than Trigger Velocity.
 - tail_offset_x: 6
-  $name: 拖尾 X 偏移
-  $description: 拖尾连接到光标的 X 轴偏移量（像素）。
+  $name: 拖尾 X 偏移 / Tail Offset X
+  $description: 拖尾连接到光标的 X 轴偏移量（像素）。X-axis offset where the tail connects to the cursor.
 - tail_offset_y: 10
-  $name: 拖尾 Y 偏移
-  $description: 拖尾连接到光标的 Y 轴偏移量（像素）。
+  $name: 拖尾 Y 偏移 / Tail Offset Y
+  $description: 拖尾连接到光标的 Y 轴偏移量（像素）。Y-axis offset where the tail connects to the cursor.
 - tail_length: 10
-  $name: 拖尾长度
-  $description: 拖影跟随的帧数。最低为 2。
+  $name: 拖尾长度 / Tail Length
+  $description: 拖影跟随的帧数。最低为 2。How many frames the blur trails behind you. Minimum 2.
 - trail_delay: 0
-  $name: 拖尾延迟
-  $description: 拖尾头部滞后于光标的程度（0-10，0=关闭）。
+  $name: 拖尾延迟 / Trail Delay
+  $description: 拖尾头部滞后于光标的程度（0-10，0=关闭）。How much the trail head lags behind the cursor (0-10, 0=off).
 - enable_smooth_gradient: 1
-  $name: 平滑渐变
-  $description: 拖尾透明度渐变淡出。1=开，0=关。
+  $name: 平滑渐变 / Smooth Gradient
+  $description: 拖尾透明度渐变淡出。1=开，0=关。Head-to-tail opacity gradient. 1=on, 0=off.
 - fadeout_mode: soft
-  $name: 淡出模式
-  $description: 鼠标停止后拖尾的消失方式。
+  $name: 淡出模式 / Fadeout Mode
+  $description: 鼠标停止后拖尾的消失方式。How the trail disappears when the mouse stops.
   $options:
-  - hard: 硬截断（立即消失）
-  - accelerate: 加速收缩（越缩越快）
-  - soft: 软截断（渐变+收缩同步）
+  - hard: 硬截断 / Hard Cut
+  - accelerate: 加速收缩 / Accelerated Shrink
+  - soft: 软截断 / Soft Fade
 - enable_speed_response: 1
-  $name: 动态宽度
-  $description: 移动速度和加速度影响拖尾宽度，急转时更宽。1=开，0=关。
+  $name: 动态宽度 / Dynamic Width
+  $description: 移动速度和加速度影响拖尾宽度，急转时更宽。1=开，0=关。Trail width responds to speed and acceleration. 1=on, 0=off.
 - enhanced_glow: 1
-  $name: 增强发光
-  $description: 双层光晕（外晕+内辉），发光更柔和自然。需先开启微发光效果。1=开，0=关。
+  $name: 增强发光 / Enhanced Glow
+  $description: 双层光晕（外晕+内辉），发光更柔和自然。需先开启微发光效果。1=开，0=关。Dual-layer halo for softer glow. Requires Micro Glow to be enabled. 1=on, 0=off.
 - enable_head_highlight: 1
-  $name: 头部高光
-  $description: 拖尾头部添加明亮中心点，提升质感。仅锥形/函数/波浪形状生效。1=开，0=关。
+  $name: 头部高光 / Head Highlight
+  $description: 拖尾头部添加明亮中心点，提升质感。仅锥形/函数/波浪形状生效。1=开，0=关。Bright center dot at trail head. Tapered/function/wave shapes only. 1=on, 0=off.
 - enable_trail_shadow: 1
-  $name: 拖尾阴影
-  $description: 拖尾底层绘制暗色阴影，增加立体感。1=开，0=关。
+  $name: 拖尾阴影 / Trail Shadow
+  $description: 拖尾底层绘制暗色阴影，增加立体感。1=开，0=关。Dark underlay shadow for depth. 1=on, 0=off.
 - trail_shape: tapered
-  $name: 拖尾形状
+  $name: 拖尾形状 / Trail Shape
   $options:
-  - tapered: 锥形（经典）
-  - dots: 类锥形圆链
-  - function: 函数曲线
-  - wave: 波浪曲线
+  - tapered: 锥形 / Tapered
+  - dots: 类锥形圆链 / Dot Chain
+  - function: 函数曲线 / Function Curve
+  - wave: 波浪曲线 / Wave Curve
 - dots_multiplier: 2
-  $name: 圆链密度倍率
-  $description: 类锥形圆链的小球数量倍率（1-5），越大小球越多且越小。仅圆链形状生效。
+  $name: 圆链密度倍率 / Dot Chain Density
+  $description: 类锥形圆链的小球数量倍率（1-5），越大小球越多且越小。仅圆链形状生效。Dot count multiplier (1-5), higher = more smaller dots. Dot Chain shape only.
 - function_preset: sine
-  $name: 函数预设
-  $description: 函数曲线形状的预设公式，选择 custom 时使用下方自定义公式。
+  $name: 函数预设 / Function Preset
+  $description: 函数曲线形状的预设公式，选择 custom 时使用下方自定义公式。Preset formula for function curve shape. Choose custom to use your own formula.
   $options:
-  - sine: 标准正弦
-  - damped: 阻尼衰减
-  - beat: 心跳脉冲
-  - swirl: 双频漩涡
-  - custom: 自定义公式
+  - sine: 标准正弦 / Sine Wave
+  - damped: 阻尼衰减 / Damped
+  - beat: 心跳脉冲 / Heartbeat
+  - swirl: 双频漩涡 / Swirl
+  - custom: 自定义公式 / Custom
 - custom_function: "sin(d * 0.15) * 8"
-  $name: 自定义函数公式
-  $description: 变量 t(0-1) d(距离) time(秒)；函数 sin cos exp sqrt abs；运算符 + - * / ^。
+  $name: 自定义函数公式 / Custom Function
+  $description: "变量 t(0-1) d(距离) time(秒)；函数 sin cos exp sqrt abs；运算符 + - * / ^。Variables: t(0-1) d(distance) time(sec); Functions: sin cos exp sqrt abs; Operators: + - * / ^."
 - wave_amplitude: 8
-  $name: 波浪幅度
-  $description: 波浪曲线的振幅（像素）。仅波浪形状生效。
+  $name: 波浪幅度 / Wave Amplitude
+  $description: 波浪曲线的振幅（像素）。仅波浪形状生效。Wave amplitude in pixels. Wave shape only.
 - wave_frequency: 15
-  $name: 波浪频率
-  $description: 波浪曲线的频率（5-40，越大波浪越密）。仅波浪形状生效。
+  $name: 波浪频率 / Wave Frequency
+  $description: 波浪曲线的频率（5-40，越大波浪越密）。仅波浪形状生效。Wave frequency (5-40, higher = denser waves). Wave shape only.
 - enable_glow: 1
-  $name: 微发光效果
-  $description: 拖尾外圈柔和发光。1=开，0=关。
+  $name: 微发光效果 / Micro Glow
+  $description: 拖尾外圈柔和发光。1=开，0=关。Soft outer glow around the trail. 1=on, 0=off.
 - glow_intensity: 40
-  $name: 发光强度
-  $description: 发光范围和亮度（0-100）。
+  $name: 发光强度 / Glow Intensity
+  $description: 发光范围和亮度（0-100）。Glow radius and brightness (0-100).
 - color_mode: classic
-  $name: 颜色模式
+  $name: 颜色模式 / Color Mode
   $options:
-  - classic: 经典黑白
-  - single: 单色
-  - gradient: 多色渐变
-  - rainbow: 彩虹流动
-  - warm: 暖色调流动
-  - cool: 冷色调流动
-  - neon: 霓虹脉冲
-  - velocity: 速度变色
-  - stripes: 流动条纹
-  - fire: 火焰
-  - aurora: 极光
-  - cursor_extract: 光标取色
-  - cursor_mix: 光标混色
+  - classic: 经典黑白 / Classic B&W
+  - single: 单色 / Single Color
+  - gradient: 多色渐变 / Gradient
+  - rainbow: 彩虹流动 / Rainbow
+  - warm: 暖色调流动 / Warm Flow
+  - cool: 冷色调流动 / Cool Flow
+  - neon: 霓虹脉冲 / Neon Pulse
+  - velocity: 速度变色 / Velocity Color
+  - stripes: 流动条纹 / Stripes
+  - fire: 火焰 / Fire
+  - aurora: 极光 / Aurora
+  - cursor_extract: 光标取色 / Cursor Extract
+  - cursor_mix: 光标混色 / Cursor Mix
 - enable_cursor_color_shift: 1
-  $name: 取色自动偏移
-  $description: 光标取色模式下自动将提取的颜色转为互补色（色相+180°）并增强饱和度和亮度，确保拖尾在任何背景上都醒目可见。1=开，0=关（使用原始取色）。
+  $name: 取色自动偏移 / Auto Color Shift
+  $description: 光标取色模式下自动将提取的颜色转为互补色（色相+180°）并增强饱和度和亮度，确保拖尾在任何背景上都醒目可见。1=开，0=关（使用原始取色）。Auto complementary-color shift (+180° hue) for cursor extraction modes, ensuring visibility on any background. 1=on, 0=off (raw color).
 - custom_color: "00BFFF"
-  $name: 自定义颜色
-  $description: 单色/霓虹/条纹/光标混色模式的主色，十六进制 RGB。
+  $name: 自定义颜色 / Custom Color
+  $description: 单色/霓虹/条纹/光标混色模式的主色，十六进制 RGB。Primary color for single/neon/stripes/cursor-mix modes. Hex RGB.
 - gradient_head_color: "FF6B35"
-  $name: 渐变头部颜色
-  $description: 多色渐变/条纹模式的头部或副色，十六进制 RGB。
+  $name: 渐变头部颜色 / Gradient Head Color
+  $description: 多色渐变/条纹模式的头部或副色，十六进制 RGB。Head/secondary color for gradient/stripes modes. Hex RGB.
 - gradient_tail_color: "00BFFF"
-  $name: 渐变尾部颜色
-  $description: 多色渐变模式的尾部颜色，十六进制 RGB。
+  $name: 渐变尾部颜色 / Gradient Tail Color
+  $description: 多色渐变模式的尾部颜色，十六进制 RGB。Tail color for gradient mode. Hex RGB.
 - particle_mode: fadeout
-  $name: 粒子消散模式
+  $name: 粒子消散模式 / Particle Mode
   $options:
-  - off: 关闭
-  - fadeout: 淡出时
-  - always: 始终（静止除外）
+  - off: 关闭 / Off
+  - fadeout: 淡出时 / On Fadeout
+  - always: 始终（静止除外）/ Always (except idle)
 - particle_origin: tail
-  $name: 粒子释放位置
-  $description: 粒子从拖尾的哪个位置释放。
+  $name: 粒子释放位置 / Particle Origin
+  $description: 粒子从拖尾的哪个位置释放。Where on the trail particles are released.
   $options:
-  - head: 开头（光标处）
-  - middle: 中间
-  - tail: 结尾
-  - custom: 自定义比例
+  - head: 开头（光标处）/ Head (cursor)
+  - middle: 中间 / Middle
+  - tail: 结尾 / Tail
+  - custom: 自定义比例 / Custom Ratio
 - particle_origin_ratio: 80
-  $name: 自定义释放比例
-  $description: 沿拖尾的位置比例（0=开头光标，100=结尾）。仅释放位置为自定义时生效。
+  $name: 自定义释放比例 / Custom Origin Ratio
+  $description: 沿拖尾的位置比例（0=开头光标，100=结尾）。仅释放位置为自定义时生效。Position along trail (0=head/cursor, 100=tail). Custom origin only.
 - particle_attraction: 40
-  $name: 粒子吸附强度
-  $description: 粒子被吸向光标的强度（0=关闭吸附，0-100）。开启后粒子会缓慢飞回光标位置。
+  $name: 粒子吸附强度 / Particle Attraction
+  $description: 粒子被吸向光标的强度（0=关闭，1-100，非线性曲线：低数值区分度高）。How strongly particles are attracted to cursor (0=off, 1-100, non-linear curve).
 - enable_particle_repel: 1
-  $name: 光标排斥力
-  $description: 粒子飞到光标附近时被排斥力弹开，并随机扰乱轨迹，形成振荡绕飞效果。1=开，0=关。
+  $name: 光标排斥力 / Cursor Repulsion
+  $description: 粒子飞到光标附近时被排斥力弹开，并随机扰乱轨迹，形成振荡绕飞效果。1=开，0=关。Particles near cursor are repelled with random perturbation, creating orbiting motion. 1=on, 0=off.
 - particle_repel_radius: 25
-  $name: 排斥范围
-  $description: 光标周围的排斥半径（像素，5-100）。粒子进入此范围会受到排斥力。
+  $name: 排斥范围 / Repulsion Radius
+  $description: 光标周围的排斥半径（像素，5-100）。粒子进入此范围会受到排斥力。Repulsion radius around cursor in pixels (5-100).
 - particle_repel_force: 30
-  $name: 排斥强度
-  $description: 排斥力和随机扰动的强度（0-100）。数值越大粒子被弹开越远、扰乱越剧烈。
+  $name: 排斥强度 / Repulsion Force
+  $description: 排斥力和随机扰动的强度（0-100）。数值越大粒子被弹开越远、扰乱越剧烈。Repulsion and random perturbation strength (0-100).
 - particle_density: 3
-  $name: 粒子密度
-  $description: 每次释放的粒子数量（1-10）。数值越大消散越明显。
+  $name: 粒子密度 / Particle Density
+  $description: 每次释放的粒子数量（1-10）。数值越大消散越明显。Number of particles per release (1-10).
 - particle_interval: 50
-  $name: 粒子释放间隔
-  $description: 粒子释放的最小时间间隔（毫秒，10-2000），越小越密集。
+  $name: 粒子释放间隔 / Particle Interval
+  $description: 粒子释放的最小时间间隔（毫秒，10-2000），越小越密集。Minimum interval between particle releases in ms (10-2000).
 - particle_acceleration: 1
-  $name: 加速度影响
-  $description: 粒子初速度受鼠标相对加速度影响（速度变化越大粒子飞散越快）。1=开，0=关。
+  $name: 加速度影响 / Acceleration Effect
+  $description: 粒子初速度受鼠标相对加速度影响（速度变化越大粒子飞散越快）。1=开，0=关。Particle initial velocity affected by mouse acceleration. 1=on, 0=off.
+- particle_shape: random
+  $name: 粒子形状 / Particle Shape
+  $description: 粒子消散时的形状。随机混合会同时出现圆形、五角星、六芒星。Particle shape. Random mix includes circle, star, and hexagram.
+  $options:
+  - random: 随机混合 / Random Mix
+  - circle: 仅圆形 / Circle
+  - star: 仅五角星 / Star
+  - hexagram: 仅六芒星 / Hexagram
 - enable_click_starburst: 1
-  $name: 点击星爆
-  $description: 点击时从光标位置迸发粒子。1=开，0=关。
+  $name: 点击星爆 / Click Starburst
+  $description: 点击时从光标位置迸发粒子。1=开，0=关。Particle burst on mouse click. 1=on, 0=off.
 - starburst_count: 8
-  $name: 星爆粒子数
-  $description: 每次点击迸发的粒子数量（4-20）。
+  $name: 星爆粒子数 / Starburst Count
+  $description: 每次点击迸发的粒子数量（4-20）。Number of particles per click burst (4-20).
 - enable_click_effect: 1
-  $name: 点击波纹
-  $description: 点击时产生扩散波纹。1=开，0=关。
+  $name: 点击波纹 / Click Ripple
+  $description: 点击时产生扩散波纹。1=开，0=关。Expanding ripple on mouse click. 1=on, 0=off.
 - click_max_radius: 40
-  $name: 波纹最大半径
-  $description: 点击波纹扩散的最大半径（像素）。
+  $name: 波纹最大半径 / Ripple Max Radius
+  $description: 点击波纹扩散的最大半径（像素）。Maximum ripple radius in pixels.
 - click_duration: 300
-  $name: 波纹持续时间
-  $description: 点击波纹从出现到消失的时长（毫秒）。
+  $name: 波纹持续时间 / Ripple Duration
+  $description: 点击波纹从出现到消失的时长（毫秒）。Ripple duration in milliseconds.
 */
 // ==/WindhawkModSettings==
 #include <windows.h>
@@ -415,6 +434,9 @@ float g_particleRepelForce = 0.9f;
 int g_particleDensity = 3;
 int g_particleInterval = 50;
 bool g_particleAccel = true;
+int g_particleShape = 0; // 0=random, 1=circle, 2=star, 3=hexagram
+ID2D1PathGeometry* g_pStarGeom = nullptr;
+ID2D1PathGeometry* g_pHexagramGeom = nullptr;
 DWORD g_lastParticleTime = 0;
 float g_prevVelocity = 0;
 bool g_enableClickStarburst = true;
@@ -423,7 +445,7 @@ bool g_enableClickEffect = true;
 int g_clickMaxRadius = 40, g_clickDuration = 300;
 
 // ===================== 粒子系统 =====================
-struct Particle { float x, y, vx, vy, size; DWORD startTime; int lifetime; D2D1_COLOR_F color; };
+struct Particle { float x, y, vx, vy, size; DWORD startTime; int lifetime; D2D1_COLOR_F color; D2D1_COLOR_F endColor; int shapeType; };
 std::vector<Particle> g_particles;
 struct Ripple { POINT pos; DWORD startTime; };
 std::vector<Ripple> g_ripples;
@@ -522,13 +544,19 @@ static inline float Hash01(int n) {
 }
 static void SpawnParticles(float x, float y, int count, float speedMin, float speedMax,
                            float sizeMin, float sizeMax, int lifeMin, int lifeMax,
-                           D2D1_COLOR_F color, DWORD time, bool radial = false) {
+                           D2D1_COLOR_F color, DWORD time, bool radial = false, int shapeType = -1) {
+    D2D1_COLOR_F endCol = D2D1::ColorF(color.r * 0.25f, color.g * 0.25f, color.b * 0.25f, 1.0f);
     for (int i = 0; i < count; i++) {
         float angle = radial ? (i / (float)count * 6.28318f) : (Rand01() * 6.28318f);
         float speed = speedMin + Rand01() * (speedMax - speedMin);
+        int st = shapeType;
+        if (st < 0) {
+            st = g_particleShape;
+            if (st == 0) st = (int)(Rand01() * 3.0f) + 1; // random: 1=circle,2=star,3=hexagram
+        }
         g_particles.push_back({ x, y, cosf(angle) * speed, sinf(angle) * speed,
             sizeMin + Rand01() * (sizeMax - sizeMin), time,
-            lifeMin + (int)(Rand01() * (lifeMax - lifeMin)), color });
+            lifeMin + (int)(Rand01() * (lifeMax - lifeMin)), color, endCol, st });
     }
 }
 
@@ -593,7 +621,8 @@ void LoadSettings() {
     g_particleAccel = Wh_GetIntSetting(L"particle_acceleration") != 0;
     g_particleOriginRatio = Wh_GetIntSetting(L"particle_origin_ratio");
     int attrVal = Wh_GetIntSetting(L"particle_attraction");
-    g_particleAttraction = (attrVal / 100.0f) * 0.08f;
+    // 非线性映射：低区间精细区分，高区间压缩。value=1→0.0008（用户舒适值），value=5→0.0065，value=40+→上限0.08
+    g_particleAttraction = fminf(0.0008f * powf((float)attrVal, 1.3f), 0.08f);
     g_enableParticleRepel = Wh_GetIntSetting(L"enable_particle_repel") != 0;
     g_particleRepelRadius = Wh_GetIntSetting(L"particle_repel_radius");
     int repelVal = Wh_GetIntSetting(L"particle_repel_force");
@@ -604,6 +633,14 @@ void LoadSettings() {
         else if (wcscmp(pstr, L"always") == 0) g_particleMode = 2;
         else g_particleMode = 1;
         Wh_FreeStringSetting(pstr);
+    }
+    PCWSTR pshape = Wh_GetStringSetting(L"particle_shape");
+    if (pshape) {
+        if (wcscmp(pshape, L"circle") == 0) g_particleShape = 1;
+        else if (wcscmp(pshape, L"star") == 0) g_particleShape = 2;
+        else if (wcscmp(pshape, L"hexagram") == 0) g_particleShape = 3;
+        else g_particleShape = 0; // random
+        Wh_FreeStringSetting(pshape);
     }
     g_enableClickStarburst = Wh_GetIntSetting(L"enable_click_starburst") != 0;
     g_starburstCount = Wh_GetIntSetting(L"starburst_count");
@@ -670,7 +707,7 @@ void LoadSettings() {
     if (g_dotsMultiplier < 1) g_dotsMultiplier = 1; if (g_dotsMultiplier > 5) g_dotsMultiplier = 5;
     if (g_waveAmplitude < 1) g_waveAmplitude = 1; if (g_waveAmplitude > 40) g_waveAmplitude = 40;
     if (g_waveFrequency < 3) g_waveFrequency = 3; if (g_waveFrequency > 60) g_waveFrequency = 60;
-    if (g_glowIntensity < 0) g_glowIntensity = 0; if (g_glowIntensity > 100) g_glowIntensity = 10;
+    if (g_glowIntensity < 0) g_glowIntensity = 0; if (g_glowIntensity > 100) g_glowIntensity = 100;
     if (g_particleDensity < 1) g_particleDensity = 1; if (g_particleDensity > 10) g_particleDensity = 10;
     if (g_particleInterval < 10) g_particleInterval = 10; if (g_particleInterval > 2000) g_particleInterval = 2000;
     if (g_particleOriginRatio < 0) g_particleOriginRatio = 0; if (g_particleOriginRatio > 100) g_particleOriginRatio = 100;
@@ -952,6 +989,10 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
             g_lastParticleTime = dwTime;
         }
     }
+    // 粒子总数上限，防止参数拉满时性能崩溃
+    if (g_particles.size() > 200) {
+        g_particles.erase(g_particles.begin(), g_particles.begin() + (g_particles.size() - 200));
+    }
     g_prevVelocity = velocity;
 
     // ===== 粒子物理：摩擦 + 光标排斥力 + 随机扰动 + 全程吸附光标 =====
@@ -992,8 +1033,16 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
     bool isDrawing = tailVisible || !g_ripples.empty() || !g_particles.empty();
 
     static bool isWindowVisible = true;
-    if (isDrawing && !isWindowVisible) { ShowWindow(hwnd, SW_SHOWNA); isWindowVisible = true; }
-    else if (!isDrawing && !needsClear && isWindowVisible) { ShowWindow(hwnd, SW_HIDE); isWindowVisible = false; }
+    static int hideDelayCounter = 0;
+    if (isDrawing) {
+        hideDelayCounter = 0;
+        if (!isWindowVisible) { ShowWindow(hwnd, SW_SHOWNA); isWindowVisible = true; }
+    } else if (!needsClear) {
+        hideDelayCounter++;
+        if (hideDelayCounter >= 3 && isWindowVisible) { ShowWindow(hwnd, SW_HIDE); isWindowVisible = false; }
+    } else {
+        hideDelayCounter = 0;
+    }
     if (!isDrawing && !needsClear) return;
 
     HDC hdcScreen = GetDC(NULL);
@@ -1030,18 +1079,41 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
     g_pDCRenderTarget->BeginDraw();
     g_pDCRenderTarget->Clear(D2D1::ColorF(0, 0, 0, 0));
 
-    // ===== 粒子（带微发光）=====
+    // ===== 粒子（带微发光 + 多形状 + 颜色渐变）=====
     if (!g_particles.empty()) {
+        bool particleFastPath = g_particles.size() > 100; // 粒子过多时降级为圆形，提升性能
         for (auto& p : g_particles) {
             float progress = (float)(dwTime - p.startTime) / p.lifetime;
             if (progress < 0 || progress >= 1) continue;
             float lifeAlpha = (1.0f - progress);
+            // 颜色随生命周期从起始色渐变到结束色（参考 Mouse-Trail 项目）
+            D2D1_COLOR_F pc = D2D1::ColorF(
+                p.color.r + (p.endColor.r - p.color.r) * progress,
+                p.color.g + (p.endColor.g - p.color.g) * progress,
+                p.color.b + (p.endColor.b - p.color.b) * progress,
+                1.0f);
             D2D1_POINT_2F pp = D2D1::Point2F(p.x, p.y);
-            g_pSolidOuterBrush->SetColor(p.color);
+            // 微发光光晕（始终圆形）
+            g_pSolidOuterBrush->SetColor(pc);
             g_pSolidOuterBrush->SetOpacity(lifeAlpha * 0.18f);
             g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pp, p.size * 2.5f, p.size * 2.5f), g_pSolidOuterBrush);
-            g_pSolidOuterBrush->SetOpacity(lifeAlpha * 0.65f);
-            g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pp, p.size, p.size), g_pSolidOuterBrush);
+            // 主体：按形状绘制（粒子过多时自动降级为圆形）
+            g_pSolidOuterBrush->SetOpacity(lifeAlpha * 0.72f);
+            if (!particleFastPath && p.shapeType == 2 && g_pStarGeom) {
+                D2D1_MATRIX_3X2_F oldT;
+                g_pDCRenderTarget->GetTransform(&oldT);
+                g_pDCRenderTarget->SetTransform(D2D1::Matrix3x2F::Scale(p.size, p.size) * D2D1::Matrix3x2F::Translation(p.x, p.y));
+                g_pDCRenderTarget->FillGeometry(g_pStarGeom, g_pSolidOuterBrush);
+                g_pDCRenderTarget->SetTransform(oldT);
+            } else if (!particleFastPath && p.shapeType == 3 && g_pHexagramGeom) {
+                D2D1_MATRIX_3X2_F oldT;
+                g_pDCRenderTarget->GetTransform(&oldT);
+                g_pDCRenderTarget->SetTransform(D2D1::Matrix3x2F::Scale(p.size, p.size) * D2D1::Matrix3x2F::Translation(p.x, p.y));
+                g_pDCRenderTarget->FillGeometry(g_pHexagramGeom, g_pSolidOuterBrush);
+                g_pDCRenderTarget->SetTransform(oldT);
+            } else {
+                g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(pp, p.size, p.size), g_pSolidOuterBrush);
+            }
         }
         g_pSolidOuterBrush->SetOpacity(1.0f);
         needsClear = true;
@@ -1066,7 +1138,7 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
             float mult = (float)g_dotsMultiplier;
             float spacing = 2.4f / mult;
             float maxR = 9.0f / sqrtf(mult) * widthMul;
-            int dotCount = (int)(totalLen / spacing); if (dotCount < 3) dotCount = 3;
+            int dotCount = (int)(totalLen / spacing); if (dotCount < 3) dotCount = 3; if (dotCount > 150) dotCount = 150;
             std::vector<DotInfo> dots; dots.reserve(dotCount + 1);
             for (int di = 0; di <= dotCount; di++) {
                 float frac = (float)di / dotCount;
@@ -1115,7 +1187,10 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
                 }
                 g_pSolidOuterBrush->SetOpacity(1.0f);
             }
-            for (auto& d : dots) {
+            int glowCutoff = (int)(dots.size() * 0.6f);
+            for (size_t di = 0; di < dots.size(); di++) {
+                auto& d = dots[di];
+                if (di < (size_t)glowCutoff) {
                 if (useEnhancedGlow) {
                     g_pSolidOuterBrush->SetColor(d.outer);
                     g_pSolidOuterBrush->SetOpacity(glowO * 0.35f * d.alpha / fa);
@@ -1126,6 +1201,7 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
                     g_pSolidOuterBrush->SetColor(d.outer);
                     g_pSolidOuterBrush->SetOpacity(glowO * d.alpha / fa);
                     g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(d.pos, d.radius + glowR * 0.7f, d.radius + glowR * 0.7f), g_pSolidOuterBrush);
+                }
                 }
                 g_pSolidOuterBrush->SetColor(d.outer); g_pSolidOuterBrush->SetOpacity(d.alpha);
                 g_pDCRenderTarget->FillEllipse(D2D1::Ellipse(d.pos, d.radius, d.radius), g_pSolidOuterBrush);
@@ -1265,20 +1341,60 @@ VOID CALLBACK SmearTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTim
     if (!isSmearing && g_history.empty() && g_ripples.empty() && g_particles.empty()) needsClear = false;
 }
 
+// ===================== 粒子形状几何 =====================
+static void CreateStarGeometry(ID2D1Factory* factory, ID2D1PathGeometry** geom) {
+    factory->CreatePathGeometry(geom);
+    ID2D1GeometrySink* sink = nullptr;
+    (*geom)->Open(&sink);
+    sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+    sink->BeginFigure(D2D1::Point2F(0, -1), D2D1_FIGURE_BEGIN_FILLED);
+    for (int i = 1; i < 10; i++) {
+        float angle = i * 3.14159265f / 5.0f - 1.5707963f;
+        float r = (i % 2 == 0) ? 1.0f : 0.42f;
+        sink->AddLine(D2D1::Point2F(cosf(angle) * r, sinf(angle) * r));
+    }
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+    sink->Close();
+    sink->Release();
+}
+
+static void CreateHexagramGeometry(ID2D1Factory* factory, ID2D1PathGeometry** geom) {
+    factory->CreatePathGeometry(geom);
+    ID2D1GeometrySink* sink = nullptr;
+    (*geom)->Open(&sink);
+    sink->SetFillMode(D2D1_FILL_MODE_WINDING);
+    // 三角形1（尖角朝上）
+    sink->BeginFigure(D2D1::Point2F(0, -1), D2D1_FIGURE_BEGIN_FILLED);
+    sink->AddLine(D2D1::Point2F(0.866f, 0.5f));
+    sink->AddLine(D2D1::Point2F(-0.866f, 0.5f));
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+    // 三角形2（尖角朝下）
+    sink->BeginFigure(D2D1::Point2F(0, 1), D2D1_FIGURE_BEGIN_FILLED);
+    sink->AddLine(D2D1::Point2F(-0.866f, -0.5f));
+    sink->AddLine(D2D1::Point2F(0.866f, -0.5f));
+    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+    sink->Close();
+    sink->Release();
+}
+
 // ===================== 覆盖层线程 =====================
 DWORD WINAPI OverlayThreadProc(LPVOID) {
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     srand((unsigned)GetTickCount());
     D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &g_pD2DFactory);
+    if (g_pD2DFactory) {
+        CreateStarGeometry(g_pD2DFactory, &g_pStarGeom);
+        CreateHexagramGeometry(g_pD2DFactory, &g_pHexagramGeom);
+    }
     HINSTANCE hi = GetModuleHandle(NULL);
-    const wchar_t CN[] = L"CursorMotionBlurCnClass";
+    const wchar_t CN[] = L"CursorMotionBlurProClass";
     WNDCLASS wc = { }; wc.lpfnWndProc = DefWindowProc; wc.hInstance = hi; wc.lpszClassName = CN; RegisterClass(&wc);
     int sx = GetSystemMetrics(SM_XVIRTUALSCREEN), sy = GetSystemMetrics(SM_YVIRTUALSCREEN);
     int sw = GetSystemMetrics(SM_CXVIRTUALSCREEN), sh = GetSystemMetrics(SM_CYVIRTUALSCREEN) - 1;
     g_overlayHwnd = CreateWindowEx(
         WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
-        CN, L"CursorMotionBlurCnOverlay", WS_POPUP, sx, sy, sw, sh, NULL, NULL, hi, NULL);
+        CN, L"CursorMotionBlurProOverlay", WS_POPUP, sx, sy, sw, sh, NULL, NULL, hi, NULL);
     if (!g_overlayHwnd) return 0;
     ShowWindow(g_overlayHwnd, SW_SHOWNA);
     GetCursorPos(&g_lastPos);
@@ -1290,6 +1406,8 @@ DWORD WINAPI OverlayThreadProc(LPVOID) {
     if (g_pSolidInnerBrush) { g_pSolidInnerBrush->Release(); g_pSolidInnerBrush = nullptr; }
     if (g_pSolidOuterBrush) { g_pSolidOuterBrush->Release(); g_pSolidOuterBrush = nullptr; }
     if (g_pDCRenderTarget) { g_pDCRenderTarget->Release(); g_pDCRenderTarget = nullptr; }
+    if (g_pStarGeom) { g_pStarGeom->Release(); g_pStarGeom = nullptr; }
+    if (g_pHexagramGeom) { g_pHexagramGeom->Release(); g_pHexagramGeom = nullptr; }
     if (g_pD2DFactory) { g_pD2DFactory->Release(); g_pD2DFactory = nullptr; }
     if (g_hBitmap) DeleteObject(g_hBitmap);
     if (g_hdcMem) DeleteDC(g_hdcMem);
