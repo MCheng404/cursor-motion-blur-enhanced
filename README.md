@@ -1,124 +1,114 @@
-# 光标运动模糊 - 增强版 (Cursor Motion Blur Enhanced)
+# Cursor Motion Blur Pro / 光标运动模糊
 
-高速移动鼠标时产生平滑的运动模糊拖尾，Direct2D 硬件加速渲染。
+**EN:** High-performance cursor motion blur with particle effects, 13 color modes, custom function trails, cursor color extraction, and click effects. Direct2D hardware accelerated. A heavily enhanced fork of TheatriChris's Cursor Motion Blur.
 
-> 原版作者：[TheatriChris](https://github.com/chrisc44890) | 原版项目：[Cursor Motion Blur](https://github.com/ramensoftware/windhawk-mods)
-> 二改汉化 + 功能增强：MCheng404 | MIT License
+**中文：** 高性能鼠标运动模糊拖尾，支持粒子特效、13种颜色模式、自定义函数轨迹、光标取色和点击特效，Direct2D 硬件加速。基于 TheatriChris 的 Cursor Motion Blur 深度二改增强。
 
-## 效果截图
+![Trail Effect](https://raw.githubusercontent.com/MCheng404/cursor-motion-blur-enhanced/main/assets/screenshot_trail.png)
 
-![效果1](assets/screenshot1.png)
-![效果2](assets/screenshot2.png)
-![效果3](assets/screenshot3.png)
+---
 
-## 功能特性
+## Installation / 安装
 
-### 核心渲染
-- **Direct2D 硬件加速**：GPU 渲染，亚像素抗锯齿
-- **零输入延迟**：直接读取硬件光标坐标绘制
-- **动态渲染**：鼠标静止且无特效时 CPU 占用 0%
-- **游戏检测**：全屏 DirectX 游戏自动禁用
-- **任务栏友好**：保留原生边缘检测
+1. Install [Windhawk](https://windhawk.net/)
+2. Download `cursor-motion-blur-pro.wh.cpp`
+3. In Windhawk, click "Create mod" → paste the code → Save
+4. Or wait for the mod to be accepted into the official catalog
 
-### 拖尾形状 (4种)
-- **锥形**：经典锥形拖尾，头部饱满尾部尖细
-- **类锥形圆链**：密集圆点组成，头部大尾部小，带微差异
-- **函数曲线**：自定义数学公式生成轨迹，内置4组预设
-- **波浪曲线**：正弦波浪轨迹，流动感
-
-### 颜色模式 (13种)
-经典黑白 / 单色 / 多色渐变 / 彩虹流动 / 暖色流动 / 冷色流动 / 霓虹脉冲 / 速度变色 / 流动条纹 / 火焰 / 极光 / 光标取色 / 光标混色
-
-- **光标取色**：实时提取光标下方像素颜色
-- **自动互补色偏移**：取色后色相+180°，确保任何背景下都醒目
-
-### 淡出模式 (3种)
-- **硬截断**：立即消失
-- **加速收缩**：越缩越快，前慢后快
-- **软截断**（默认）：透明度渐变+拖尾收缩同步，基于剩余长度的淡出曲线，杜绝末端硬切
-
-### 粒子系统
-- **粒子消散**：拖尾释放迷你小球，全程吸附回光标
-- **释放位置**：开头/中间/结尾/自定义比例
-- **光标排斥力**：粒子飞到光标附近被弹开，随机扰乱轨迹，振荡绕飞
-- **加速度影响**：粒子初速度受鼠标加速度影响
-- **点击星爆**：点击时径向迸发粒子
-- **点击波纹**：点击时扩散双环波纹
-
-### 视觉增强
-- **延迟渲染**：拖尾头部缓动跟随光标（0-10可调）
-- **动态宽度**：移动越快、急转时拖尾越宽
-- **增强发光**：双层光晕（外晕+内辉）
-- **头部高光**：拖尾头部明亮中心点
-- **拖尾阴影**：底层暗色阴影增加立体感
-- **圆链连接线**：圆点间自动连接更连续
-- **指数收尖**：比线性收尖更自然
-- **平滑渐变**：从头到尾透明度渐变
-
-### 函数轨迹
-自定义公式支持变量：`t`(归一化0-1)、`d`(距头部像素距离)、`time`(秒)
-函数：sin cos tan exp sqrt abs log | 运算符：+ - * / ^ | 常量：pi e
-
-预设：标准正弦 / 阻尼衰减 / 心跳脉冲 / 双频漩涡 / 自定义
-
-## 安装方法
-
+**中文：**
 1. 安装 [Windhawk](https://windhawk.net/)
-2. 打开 Windhawk，点击「高级」→「创建新 Mod」
-3. 将 `cursor-motion-blur-cn.cpp` 的全部内容粘贴进去
-4. 点击「编译」，编译成功后自动启用
+2. 下载 `cursor-motion-blur-pro.wh.cpp`
+3. 在 Windhawk 中点击"创建 mod"→ 粘贴代码 → 保存
+4. 或等待 mod 被官方目录收录
 
-## 版本历史
+---
 
-### v8.8
-- 光标取色自动互补色偏移（色相+180°+饱和度增强+亮度保底）
+## Features / 功能特性
 
-### v8.7
-- 重构淡出系统：硬截断/加速收缩/软截断三种模式
-- 软截断采用基于剩余长度的淡出曲线，彻底杜绝末端硬切
-- 加速收缩节奏调慢（前5帧每帧缩1点，之后才加速）
+* **Delay Rendering / 延迟渲染：** Trail head eases toward the cursor (0-10 adjustable). / 拖尾头部缓动跟随光标，滞后平滑（0-10 可调）。
+* **Fadeout Modes / 淡出模式：** Hard cut / Accelerated shrink / Soft fade (alpha + length synchronized, no hard cutoff). / 硬截断 / 加速收缩 / 软截断（透明度渐变+拖尾收缩同步，末端加速淡出杜绝硬切）。
+* **Dynamic Width / 动态宽度：** Trail widens with speed and acceleration. / 移动越快、急转时拖尾越宽，增强运动感。
+* **Enhanced Glow / 增强发光：** Dual-layer halo (outer glow + inner bloom). / 双层光晕（外晕+内辉），更柔和自然。
+* **Head Highlight / 头部高光：** Bright center dot at the trail head. / 拖尾头部明亮中心点，提升质感。
+* **Trail Shadow / 拖尾阴影：** Dark underlay adds depth. / 底层暗色阴影层，增加立体感。
+* **Dot Chain Links / 圆链连接线：** Auto-connecting dots for continuous trail. / 圆点之间自动连接，拖尾更连续。
+* **Exponential Taper / 指数收尖：** Fuller head, sharper tail than linear taper. / 头部饱满尾部尖细，比线性收尖更自然。
+* **Particle Dissipation / 粒子消散：** Mini particles released from the trail, attracted back to cursor with configurable origin (head/middle/tail/custom), attraction strength, and cursor repulsion force. Shapes: circle / star / hexagram / random mix. Colors fade from bright to dark over lifetime. / 拖尾释放迷你粒子，全程缓慢吸附回光标位置。释放位置可选（开头/中间/结尾/自定义），吸附强度可调。光标周围有排斥力，粒子飞到附近被弹开并随机扰乱轨迹。粒子支持圆形/五角星/六芒星/随机混合形状，颜色随生命周期从亮到暗渐变。
+* **Click Starburst / 点击星爆：** Particle burst on click (toggleable, count adjustable). / 点击时从光标位置迸发粒子（可开关、数量可调）。
+* **Cursor Color Extraction / 光标取色：** Real-time pixel color sampling under the cursor (2 modes), with auto complementary-color shift for visibility. / 实时提取光标下方像素颜色，拖尾自动融入背景（2 种模式）。支持自动互补色偏移，确保拖尾在任何背景上都醒目可见。
+* **Function Trails / 函数轨迹：** Custom math expressions generate trail curves, 4 built-in presets. / 支持自定义数学公式生成轨迹曲线，内置 4 组预设函数。
+* **Wave Trails / 波浪轨迹：** Sine-wave trail shape with flowing animation. / 拖尾形状增加正弦波浪曲线，轨迹呈流动波浪状。
+* **Tapered Dot Chain / 类锥形圆链：** Dense dot-based tapered trail, big head small tail. / 由密集圆点组成的锥形拖尾，头部大尾部小。
+* **Smooth Gradient / 平滑渐变：** Head-to-tail opacity gradient (toggleable). / 拖尾从头到尾透明度渐变淡出（可开关）。
+* **Micro Glow / 微发光效果：** Soft outer glow (toggleable, intensity adjustable). / 拖尾外圈柔和发光（可开关、强度可调）。
+* **13 Color Modes / 13 种颜色模式：** Classic / Single / Gradient (3-color) / Rainbow / Warm / Cool / Neon / Velocity / Stripes / Fire / Aurora / Cursor Extract / Cursor Mix.
+* **Click Ripple / 点击波纹：** Expanding ripple on left/right click (toggleable). / 按下鼠标左右键时产生扩散波纹（可开关）。
+* **Game Detection / 游戏检测：** Auto-disable in fullscreen DirectX games. / 全屏 DirectX 游戏时自动禁用。
+* **Idle at 0% CPU / 动态渲染：** Zero CPU when cursor is stationary and no effects active. / 鼠标静止且无特效时 CPU 占用为 0%。
 
-### v8.6
-- 粒子光标排斥力：粒子飞到光标附近被径向弹开+随机方向扰乱
-- 排斥范围和强度可调
+---
 
-### v8.5
-- 粒子系统重构：释放位置可选（开头/中间/结尾/自定义比例）
-- 粒子全程缓慢吸附回光标位置
-- smoothed路径提前计算，粒子和渲染共用
+## Function Trail Variables / 函数轨迹变量
 
-### v8.4
-- 渲染质量优化：圆链连接线、指数收尖、12段渐变、拖尾阴影、显式抗锯齿
+**EN:** Available variables: `t` (normalized 0=head 1=tail), `d` (distance from head in px), `time` (seconds). Functions: sin cos tan exp sqrt abs log. Operators: + - * / ^. Constants: pi e.
 
-### v8.3
-- 平滑淡出、速度响应、增强发光、头部高光、透明度曲线
+**中文：** 自定义公式中可使用：`t`（归一化位置 0=头 1=尾）、`d`（距头部像素距离）、`time`（秒）。支持函数：sin cos tan exp sqrt abs log，运算符：+ - * / ^，常量：pi e。
 
-### v8.2
-- 粒子系统三档模式、释放间隔、加速度影响
+**Examples / 示例：** `sin(d * 0.15) * 8`, `sin(d * 0.25) * exp(0 - t * 2.5) * 10`
 
-### v8.0
-- 自定义函数公式轨迹（完整表达式解析器）
-- 类锥形圆链、删除等宽带形状
+---
 
-### v7.0
-- 光标取色颜色模式（2种）
-- 波浪曲线拖尾形状
+## Color Format / 颜色格式
 
-### v6.0
-- 粒子消散和点击星爆特效
+**EN:** Hex RGB, e.g. `FF0000`=red, `00FF00`=green, `0000FF`=blue, `FFD700`=gold.
 
-### v5.0
-- 延迟渲染、5种新颜色模式（霓虹/速度/条纹/火焰/极光）
+**中文：** 自定义颜色使用十六进制 RGB，例如：`FF0000`=红，`00FF00`=绿，`0000FF`=蓝，`FFD700`=金。
 
-### v4.0
-- 修复静止闪烁BUG、微发光效果、8种颜色模式
+---
 
-### v3.0
-- 平滑渐变、三种拖尾形状、点击波纹
+## Architecture / 架构
 
-### v2.0 (原版)
-- TheatriChris 原始版本
+- **Mod type:** Windhawk Tool Mod (`@include windhawk.exe`), runs in a dedicated process
+- **Rendering:** Direct2D hardware accelerated layered window (WS_EX_LAYERED)
+- **Compiler options:** `-ld2d1 -lole32 -lgdi32 -lshell32`
+- **Zero CPU when idle:** Window is hidden when no drawing is needed
 
-## 许可证
+---
 
-MIT License - 原作者 TheatriChris，二改增强 MCheng404
+## Version History / 版本历史
+
+| Version | Changes |
+|---------|---------|
+| v9.2 | AI review fixes: single author, en-first localization, boolean settings, unload hang fix, verbatim boilerplate, thread-safe settings reload, clamps, screenshot |
+| v9.1 | 3-color gradient (comma-separated), @author length fix |
+| v9.0 | Rename to cursor-motion-blur-pro, performance optimizations, non-linear attraction, flicker fix |
+| v8.9 | Multi-shape particles (star/hexagram), lifetime color fading (inspired by Mouse-Trail) |
+| v8.8 | Cursor color auto complementary shift |
+| v8.7 | 3 fadeout modes (hard/accelerate/soft) |
+| v8.6 | Particle cursor repulsion force |
+| v8.5 | Particle system rewrite: cursor attraction, configurable origin |
+| v8.4 | Render quality: dot chain links, exponential taper, 12-stop gradient, trail shadow |
+| v8.3 | Smooth fadeout, speed response, enhanced glow, head highlight |
+| v8.2 | Particle modes, interval, acceleration effect |
+| v8.1 | Dot chain density multiplier, per-dot variation |
+| v8.0 | Custom function expression parser, tapered dot chain |
+| v7.0 | Cursor color extraction (2 modes), wave trail shape |
+| v6.0 | Particle dissipation, click starburst |
+| v5.0 | Delay rendering, 5 new color modes |
+| v4.0 | Flicker fix, micro glow, 8 color modes |
+| v3.0 | Smooth gradient, 3 trail shapes, click ripple |
+| v2.0 | Original by TheatriChris |
+
+---
+
+## Credits / 致谢
+
+Original mod by [TheatriChris](https://github.com/chrisc44890) — [Cursor Motion Blur](https://github.com/chrisc44890) (MIT License)
+
+Enhanced fork by [MCheng404](https://github.com/MCheng404)
+
+Inspired by [Mouse-Trail](https://github.com/wanchen-wang/Mouse-Trail) by wanchen-wang
+
+## License / 许可证
+
+MIT License — inherited from original mod.
